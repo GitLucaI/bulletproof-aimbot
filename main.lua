@@ -28,6 +28,7 @@ local _S = {
 }
 
 local _G = Instance.new("ScreenGui", game.CoreGui)
+_G.DisplayOrder = 9999
 _G.Name = "B_P_A_" .. math.random(100, 999)
 _G.ResetOnSpawn = false
 
