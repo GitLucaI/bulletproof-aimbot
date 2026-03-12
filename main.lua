@@ -17,16 +17,17 @@ local _S = {
     _mK = nil,
     _op = true,
     _E = false,
+    _W = false,
     _V = {
         _m = Color3.fromRGB(24, 26, 30),
         _h = Color3.fromRGB(34, 37, 43),
-        _s = Color3.fromRGB(0, 255, 127),
-        _u = Color3.fromRGB(255, 65, 65),
+        _s = Color3.fromRGB(0, 200, 100),
+        _u = Color3.fromRGB(200, 50, 50),
         _ac = Color3.fromRGB(50, 55, 65)
     }
 }
 
-local _G = Instance.new("ScreenGui", _p0.PlayerGui)
+local _G = Instance.new("ScreenGui", game.CoreGui)
 _G.Name = "B_P_A_" .. math.random(100, 999)
 _G.ResetOnSpawn = false
 
@@ -37,8 +38,8 @@ local function _rnd(p, r)
 end
 
 local _M = Instance.new("Frame", _G)
-_M.Size = UDim2.new(0, 380, 0, 580)
-_M.Position = UDim2.new(0.5, -190, 0.5, -290)
+_M.Size = UDim2.new(0, 380, 0, 600)
+_M.Position = UDim2.new(0.5, -190, 0.5, -300)
 _M.BackgroundColor3 = _S._V._m
 _M.BorderSizePixel = 0
 _M.Active = true
@@ -89,6 +90,20 @@ local _Ly = Instance.new("UIListLayout", _Sf)
 _Ly.Padding = UDim.new(0, 6)
 _Ly.SortOrder = Enum.SortOrder.LayoutOrder
 
+local function _vChk(p)
+    if not _S._W then return true end
+    local c = _p0.Character
+    if not c or not p then return false end
+    local rP = p:FindFirstChild(_S._P)
+    local mP = c:FindFirstChild("Head")
+    if not rP or not mP then return false end
+    local rPms = RaycastParams.new()
+    rPms.FilterType = Enum.RaycastFilterType.Exclude
+    rPms.FilterDescendantsInstances = {c, p.Parent}
+    local r = workspace:Raycast(mP.Position, (rP.Position - mP.Position).Unit * (rP.Position - mP.Position).Magnitude, rPms)
+    return not r
+end
+
 local function _updBtn(p)
     local b = _Sf:FindFirstChild(p.Name)
     if b then b.BackgroundColor3 = _S._L[p] and _S._V._s or _S._V._u end
@@ -116,6 +131,7 @@ local function _rfsh()
             if #plrs > 0 then
                 local s = not _S._L[plrs[1]]
                 for _, p in pairs(plrs) do _tgl(p, s) end
+                b.BackgroundColor3 = s and _S._V._s or _S._V._h
             end
         end)
     end
@@ -128,7 +144,7 @@ local function _rfsh()
             b.TextColor3 = Color3.new(1, 1, 1)
             b.Font = Enum.Font.Code
             b.TextXAlignment = Enum.TextXAlignment.Left
-            b.LayoutOrder = 10
+            b.LayoutOrder = 100
             b.BackgroundColor3 = _S._L[p] and _S._V._s or _S._V._u
             _rnd(b, 5)
             b.MouseButton1Click:Connect(function() _tgl(p) end)
@@ -137,7 +153,7 @@ local function _rfsh()
 end
 
 local _Ct = Instance.new("Frame", _Cn)
-_Ct.Size = UDim2.new(1, -20, 0, 300)
+_Ct.Size = UDim2.new(1, -20, 0, 340)
 _Ct.Position = UDim2.new(0, 10, 0, 200)
 _Ct.BackgroundTransparency = 1
 
@@ -158,38 +174,40 @@ end
 _bldB("HEAD", UDim2.new(0,0,0,0), nil, function() _S._P = "Head" end)
 _bldB("TORSO", UDim2.new(0.34,0,0,0), nil, function() _S._P = "UpperTorso" end)
 _bldB("LEGS", UDim2.new(0.68,0,0,0), nil, function() _S._P = "LeftLowerLeg" end)
-_bldB("ALL", UDim2.new(0,0,0,38), UDim2.new(0.31,0,0,32), function() for _,p in pairs(_g1:GetPlayers()) do _tgl(p, true) end end)
-_bldB("NONE", UDim2.new(0.34,0,0,38), UDim2.new(0.31,0,0,32), function() for _,p in pairs(_g1:GetPlayers()) do _tgl(p, false) end end)
-_bldB("OPPOSING", UDim2.new(0.68,0,0,38), UDim2.new(0.31,0,0,32), function() 
-    for _,p in pairs(_g1:GetPlayers()) do 
-        if p ~= _p0 then _tgl(p, p.Team ~= _p0.Team) end
-    end 
-end)
+_bldB("ALL", UDim2.new(0,0,0,38), nil, function() for _,p in pairs(_g1:GetPlayers()) do _tgl(p, true) end end)
+_bldB("NONE", UDim2.new(0.34,0,0,38), nil, function() for _,p in pairs(_g1:GetPlayers()) do _tgl(p, false) end end)
+_bldB("OPPOSING", UDim2.new(0.68,0,0,38), nil, function() for _,p in pairs(_g1:GetPlayers()) do if p ~= _p0 then _tgl(p, p.Team ~= _p0.Team) end end end)
 
-local _AtB = _bldB("AUTO MODE: OFF", UDim2.new(0,0,0,76), UDim2.new(1,0,0,32), function()
+local _AtB = _bldB("AUTO MODE", UDim2.new(0,0,0,76), UDim2.new(1,0,0,32), function()
     _S._A = not _S._A
-    _AtB.Text = "AUTO MODE: " .. (_S._A and "ON" or "OFF")
-    _AtB.BackgroundColor3 = _S._A and _S._V._s or _S._V._ac
+    _AtB.BackgroundColor3 = _S._A and _S._V._s or _S._V._u
 end)
+_AtB.BackgroundColor3 = _S._V._u
 
-local _EsB = _bldB("TOGGLE ESP: OFF", UDim2.new(0,0,0,114), UDim2.new(1,0,0,32), function()
+local _EsB = _bldB("TOGGLE ESP", UDim2.new(0,0,0,114), UDim2.new(1,0,0,32), function()
     _S._E = not _S._E
-    _EsB.Text = "TOGGLE ESP: " .. (_S._E and "ON" or "OFF")
-    _EsB.BackgroundColor3 = _S._E and _S._V._s or _S._V._ac
+    _EsB.BackgroundColor3 = _S._E and _S._V._s or _S._V._u
 end)
+_EsB.BackgroundColor3 = _S._V._u
 
-local _SpB = _bldB("SPEED: 100%", UDim2.new(0,0,0,152), UDim2.new(1,0,0,32), function()
+local _WcB = _bldB("WALL CHECK", UDim2.new(0,0,0,152), UDim2.new(1,0,0,32), function()
+    _S._W = not _S._W
+    _WcB.BackgroundColor3 = _S._W and _S._V._s or _S._V._u
+end)
+_WcB.BackgroundColor3 = _S._V._u
+
+local _SpB = _bldB("SPEED: 100%", UDim2.new(0,0,0,190), UDim2.new(1,0,0,32), function()
     _S._Sp = (_S._Sp <= 0.2) and 1 or _S._Sp - 0.2
 end)
 
-local _K1B = _bldB("BIND LOCK: MB2", UDim2.new(0,0,0,190), UDim2.new(0.48,0,0,32), function() _S._mK = "K1" end)
-local _K2B = _bldB("BIND SWIT: MB3", UDim2.new(0.52,0,0,190), UDim2.new(0.48,0,0,32), function() _S._mK = "K2" end)
+local _K1B = _bldB("BIND LOCK: MB2", UDim2.new(0,0,0,228), UDim2.new(0.48,0,0,32), function() _S._mK = "K1" end)
+local _K2B = _bldB("BIND SWIT: MB3", UDim2.new(0.52,0,0,228), UDim2.new(0.48,0,0,32), function() _S._mK = "K2" end)
 
 local _Inf = Instance.new("TextLabel", _M)
 _Inf.Size = UDim2.new(1, -20, 0, 45)
 _Inf.Position = UDim2.new(0, 10, 1, -50)
 _Inf.BackgroundTransparency = 1
-_Inf.Text = "SYS_READY..."
+_Inf.Text = "READY"
 _Inf.TextColor3 = Color3.new(0.6, 0.6, 0.6)
 _Inf.Font = Enum.Font.Code
 _Inf.TextSize = 10
@@ -197,18 +215,20 @@ _Inf.TextSize = 10
 _mB.MouseButton1Click:Connect(function()
     _S._op = not _S._op
     _mB.Text = _S._op and "-" or "+"
-    _ts:Create(_M, TweenInfo.new(0.35, Enum.EasingStyle.Quart), {Size = _S._op and UDim2.new(0, 380, 0, 580) or UDim2.new(0, 380, 0, 50)}):Play()
+    _ts:Create(_M, TweenInfo.new(0.35, Enum.EasingStyle.Quart), {Size = _S._op and UDim2.new(0, 380, 0, 600) or UDim2.new(0, 380, 0, 50)}):Play()
 end)
 
 local function _gnr()
     local n, d = nil, math.huge
     for p, v in pairs(_S._L) do
         if v and p ~= _p0 and p.Character and p.Character:FindFirstChild("Humanoid") and p.Character.Humanoid.Health > 0 then
-            local r = p.Character:FindFirstChild("HumanoidRootPart")
-            local mR = _p0.Character and _p0.Character:FindFirstChild("HumanoidRootPart")
-            if r and mR then
-                local m = (r.Position - mR.Position).Magnitude
-                if m < d then d = m n = p end
+            if _vChk(p.Character) then
+                local r = p.Character:FindFirstChild("HumanoidRootPart")
+                local mR = _p0.Character and _p0.Character:FindFirstChild("HumanoidRootPart")
+                if r and mR then
+                    local m = (r.Position - mR.Position).Magnitude
+                    if m < d then d = m n = p end
+                end
             end
         end
     end
@@ -216,9 +236,9 @@ local function _gnr()
 end
 
 _g4.RenderStepped:Connect(function()
-    if _S._mK then _Inf.Text = "LISTENING..." return end
+    if _S._mK then _Inf.Text = "..." return end
     if _S._A then local n = _gnr() if n then _S._T = n end end
-    if _S._T and (_S._T.Character == nil or (_S._T.Character:FindFirstChild("Humanoid") and _S._T.Character.Humanoid.Health <= 0)) then
+    if _S._T and (_S._T.Character == nil or (_S._T.Character:FindFirstChild("Humanoid") and _S._T.Character.Humanoid.Health <= 0) or not _vChk(_S._T.Character)) then
         _S._T = _S._A and _gnr() or nil
     end
     local iP = false
@@ -228,17 +248,18 @@ _g4.RenderStepped:Connect(function()
         local p = c and c:FindFirstChild(_S._P)
         if p then _c0.CFrame = _c0.CFrame:Lerp(CFrame.lookAt(_c0.CFrame.Position, p.Position), _S._Sp) end
     end
-    _SpB.Text = "LOCK SPEED: " .. math.floor(_S._Sp * 100) .. "%"
-    _Inf.Text = "TRGT: " .. (_S._T and _S._T.Name:upper() or "NONE") .. " | " .. _S._P:upper()
+    _SpB.Text = "SPEED: " .. math.floor(_S._Sp * 100) .. "%"
+    _Inf.Text = "T: " .. (_S._T and _S._T.Name:upper() or "NONE") .. " | P: " .. _S._P:upper()
 
     for _, p in pairs(_g1:GetPlayers()) do
         if p == _p0 then continue end
         local c = p.Character
+        local s = _S._L[p] and _S._E
         if c and c:FindFirstChild("HumanoidRootPart") then
             local r = c.HumanoidRootPart
             local h = c:FindFirstChild("BPA_H") or Instance.new("Highlight", c)
             h.Name = "BPA_H"
-            h.Enabled = _S._E
+            h.Enabled = s
             h.FillTransparency = 1
             h.OutlineColor = Color3.fromHSV(tick() % 5 / 5, 1, 1)
             h.FillColor = Color3.new(1, 1, 1)
@@ -248,7 +269,7 @@ _g4.RenderStepped:Connect(function()
             b.AlwaysOnTop = true
             b.Size = UDim2.new(0, 100, 0, 50)
             b.ExtentsOffset = Vector3.new(0, 3, 0)
-            b.Enabled = _S._E
+            b.Enabled = s
             
             local l = b:FindFirstChild("Txt") or Instance.new("TextLabel", b)
             l.Name = "Txt"
@@ -268,8 +289,8 @@ end)
 _g3.InputBegan:Connect(function(i, g)
     if _S._mK then
         local _k = (i.UserInputType == Enum.UserInputType.Keyboard) and i.KeyCode or i.UserInputType
-        if _S._mK == "K1" then _S._K1 = _k _K1B.Text = "LOCK: " .. _k.Name
-        elseif _S._mK == "K2" then _S._K2 = _k _K2B.Text = "SWIT: " .. _k.Name end
+        if _S._mK == "K1" then _S._K1 = _k _K1B.Text = "L: " .. _k.Name
+        elseif _S._mK == "K2" then _S._K2 = _k _K2B.Text = "S: " .. _k.Name end
         _S._mK = nil return
     end
     if not g and i.UserInputType == _S._K2 then _S._T = _gnr() end
