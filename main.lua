@@ -23,12 +23,15 @@ local _S = {
     _Fv = false,
     _Fr = 150,
     _OpM = false,
+    _C_Es = {Mode = "Rainbow", Color = Color3.new(1,1,1)},
+    _C_Tr = {Mode = "Team", Color = Color3.new(1,1,1)},
+    _C_Fv = {Mode = "Static", Color = Color3.new(1,1,1)},
     _V = {
-        _m = Color3.fromRGB(20, 22, 26),
-        _h = Color3.fromRGB(30, 32, 38),
-        _s = Color3.fromRGB(0, 200, 100),
-        _u = Color3.fromRGB(200, 50, 50),
-        _ac = Color3.fromRGB(45, 48, 55)
+        _m = Color3.fromRGB(15, 17, 20),
+        _h = Color3.fromRGB(25, 27, 32),
+        _s = Color3.fromRGB(0, 255, 150),
+        _u = Color3.fromRGB(255, 70, 70),
+        _ac = Color3.fromRGB(35, 38, 45)
     }
 }
 
@@ -38,21 +41,19 @@ _G.ResetOnSpawn = false
 _G.DisplayOrder = 9999
 _G.Parent = _cg
 
-local _fO = Drawing.new("Circle")
-_fO.Visible = false
-_fO.Thickness = 1.5
-_fO.Color = Color3.new(1, 1, 1)
-_fO.Transparency = 0.7
-_fO.NumSides = 64
-_fO.Radius = _S._Fr
-
-local _tL = {}
-
 local function _rnd(p, r)
     local c = Instance.new("UICorner")
     c.CornerRadius = UDim.new(0, r)
     c.Parent = p
 end
+
+local _fO = Drawing.new("Circle")
+_fO.Visible = false
+_fO.Thickness = 2
+_fO.NumSides = 64
+_fO.Radius = _S._Fr
+
+local _tL = {}
 
 local _M = Instance.new("Frame", _G)
 _M.Size = UDim2.new(0, 380, 0, 700)
@@ -62,21 +63,96 @@ _M.BorderSizePixel = 0
 _M.Active = true
 _M.Draggable = true
 _M.ClipsDescendants = true
-_rnd(_M, 15)
+_rnd(_M, 12)
+
+local _CP = Instance.new("Frame", _G)
+_CP.Size = UDim2.new(0, 280, 0, 350)
+_CP.Position = UDim2.new(0.5, 200, 0.5, -175)
+_CP.BackgroundColor3 = _S._V._h
+_CP.Visible = false
+_CP.Active = true
+_CP.Draggable = true
+_rnd(_CP, 10)
+
+local _CW = Instance.new("ImageButton", _CP)
+_CW.Size = UDim2.new(0, 150, 0, 150)
+_CW.Position = UDim2.new(0.5, -75, 0, 40)
+_CW.Image = "rbxassetid://2849323573"
+_CW.BackgroundTransparency = 1
+
+local _R_In = Instance.new("TextBox", _CP)
+_R_In.Size = UDim2.new(0, 40, 0, 30)
+_R_In.Position = UDim2.new(0.1, 0, 0, 200)
+_R_In.Text = "255"
+_R_In.BackgroundColor3 = _S._V._ac
+_R_In.TextColor3 = Color3.new(1,0,0)
+_rnd(_R_In, 4)
+
+local _G_In = _R_In:Clone()
+_G_In.Parent = _CP
+_G_In.Position = UDim2.new(0.4, 0, 0, 200)
+_G_In.TextColor3 = Color3.new(0,1,0)
+
+local _B_In = _R_In:Clone()
+_B_In.Parent = _CP
+_B_In.Position = UDim2.new(0.7, 0, 0, 200)
+_B_In.TextColor3 = Color3.new(0,0,1)
+
+local _cur_cfg = nil
+local function _setMode(m) if _cur_cfg then _cur_cfg.Mode = m end end
+
+local _btn_R = Instance.new("TextButton", _CP)
+_btn_R.Size = UDim2.new(0.28, 0, 0, 30)
+_btn_R.Position = UDim2.new(0.04, 0, 0, 250)
+_btn_R.Text = "RAINBOW"
+_btn_R.BackgroundColor3 = _S._V._ac
+_btn_R.TextColor3 = Color3.new(1,1,1)
+_rnd(_btn_R, 5)
+_btn_R.MouseButton1Click:Connect(function() _setMode("Rainbow") end)
+
+local _btn_S = _btn_R:Clone()
+_btn_S.Parent = _CP
+_btn_S.Position = UDim2.new(0.36, 0, 0, 250)
+_btn_S.Text = "SELECTED"
+_btn_S.MouseButton1Click:Connect(function() _setMode("Static") end)
+
+local _btn_T = _btn_R:Clone()
+_btn_T.Parent = _CP
+_btn_T.Position = UDim2.new(0.68, 0, 0, 250)
+_btn_T.Text = "TEAM"
+_btn_T.MouseButton1Click:Connect(function() _setMode("Team") end)
+
+local _btn_Conf = _btn_R:Clone()
+_btn_Conf.Parent = _CP
+_btn_Conf.Size = UDim2.new(0.44, 0, 0, 35)
+_btn_Conf.Position = UDim2.new(0.04, 0, 0, 300)
+_btn_Conf.Text = "CONFIRM"
+_btn_Conf.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+_btn_Conf.MouseButton1Click:Connect(function() 
+    if _cur_cfg then _cur_cfg.Color = Color3.fromRGB(tonumber(_R_In.Text) or 0, tonumber(_G_In.Text) or 0, tonumber(_B_In.Text) or 0) end
+    _CP.Visible = false 
+end)
+
+local _btn_Canc = _btn_Conf:Clone()
+_btn_Canc.Parent = _CP
+_btn_Canc.Position = UDim2.new(0.52, 0, 0, 300)
+_btn_Canc.Text = "CANCEL"
+_btn_Canc.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+_btn_Canc.MouseButton1Click:Connect(function() _CP.Visible = false end)
 
 local _H = Instance.new("Frame", _M)
 _H.Size = UDim2.new(1, 0, 0, 50)
 _H.BackgroundColor3 = _S._V._h
-_rnd(_H, 15)
+_rnd(_H, 12)
 
 local _Tl = Instance.new("TextLabel", _H)
 _Tl.Size = UDim2.new(1, -100, 1, 0)
 _Tl.Position = UDim2.new(0, 15, 0, 0)
 _Tl.BackgroundTransparency = 1
-_Tl.Text = "OVERLORD TARGETING SYSTEM"
+_Tl.Text = "OVERLORD V6"
 _Tl.TextColor3 = Color3.new(1, 1, 1)
 _Tl.Font = Enum.Font.Code
-_Tl.TextSize = 16
+_Tl.TextSize = 18
 _Tl.TextXAlignment = Enum.TextXAlignment.Left
 
 local _mB = Instance.new("TextButton", _H)
@@ -85,8 +161,6 @@ _mB.Position = UDim2.new(1, -45, 0.5, -17)
 _mB.BackgroundColor3 = _S._V._ac
 _mB.Text = "-"
 _mB.TextColor3 = Color3.new(1, 1, 1)
-_mB.Font = Enum.Font.Code
-_mB.TextSize = 20
 _rnd(_mB, 8)
 
 local _Cn = Instance.new("Frame", _M)
@@ -121,16 +195,6 @@ local function _vChk(p)
     return not r
 end
 
-local function _inFov(p)
-    if not _S._Fv then return true end
-    local c = p.Character
-    if not c or not c:FindFirstChild(_S._P) then return false end
-    local screenPos, onScreen = _c0:WorldToViewportPoint(c[_S._P].Position)
-    if not onScreen then return false end
-    local dist = (Vector2.new(screenPos.X, screenPos.Y) - Vector2.new(_c0.ViewportSize.X/2, _c0.ViewportSize.Y/2)).Magnitude
-    return dist <= _S._Fr
-end
-
 local function _updBtn(p)
     local b = _Sf:FindFirstChild(p.Name)
     if b then b.BackgroundColor3 = _S._L[p] and _S._V._s or _S._V._u end
@@ -161,7 +225,6 @@ local function _rfsh()
         b.Text = " [TEAM] " .. t.Name:upper()
         b.TextColor3 = Color3.new(1, 1, 1)
         b.Font = Enum.Font.Code
-        b.LayoutOrder = 1
         _rnd(b, 5)
         _updTeamBtn(t, b)
         b.MouseButton1Click:Connect(function()
@@ -182,7 +245,6 @@ local function _rfsh()
             b.TextColor3 = Color3.new(1, 1, 1)
             b.Font = Enum.Font.Code
             b.TextXAlignment = Enum.TextXAlignment.Left
-            b.LayoutOrder = 999
             b.BackgroundColor3 = _S._L[p] and _S._V._s or _S._V._u
             _rnd(b, 5)
             b.MouseButton1Click:Connect(function() _tgl(p) end)
@@ -195,7 +257,7 @@ _Ct.Size = UDim2.new(1, -20, 0, 480)
 _Ct.Position = UDim2.new(0, 10, 0, 180)
 _Ct.BackgroundTransparency = 1
 
-local function _bldB(txt, pos, sz, cb)
+local function _bldB(txt, pos, sz, cb, rcb)
     local b = Instance.new("TextButton", _Ct)
     b.Size = sz or UDim2.new(0.31, 0, 0, 30)
     b.Position = pos
@@ -206,7 +268,14 @@ local function _bldB(txt, pos, sz, cb)
     b.TextSize = 10
     _rnd(b, 6)
     b.MouseButton1Click:Connect(function() cb(b) _rfsh() end)
+    if rcb then b.MouseButton2Click:Connect(function() rcb(b) end) end
     return b
+end
+
+local function _openCP(cfg, showTeam)
+    _cur_cfg = cfg
+    _btn_T.Visible = showTeam
+    _CP.Visible = true
 end
 
 _bldB("HEAD", UDim2.new(0,0,0,0), nil, function() _S._P = "Head" end)
@@ -226,13 +295,13 @@ _OpB.BackgroundColor3 = _S._V._u
 local _AtB = _bldB("AUTO LOCK", UDim2.new(0,0,0,108), UDim2.new(1,0,0,30), function(b) _S._A = not _S._A b.BackgroundColor3 = _S._A and _S._V._s or _S._V._u end)
 _AtB.BackgroundColor3 = _S._V._u
 
-local _EsB = _bldB("TOGGLE ESP / CHAMS", UDim2.new(0,0,0,144), UDim2.new(1,0,0,30), function(b) _S._E = not _S._E b.BackgroundColor3 = _S._E and _S._V._s or _S._V._u end)
+local _EsB = _bldB("ESP / CHAMS", UDim2.new(0,0,0,144), UDim2.new(1,0,0,30), function(b) _S._E = not _S._E b.BackgroundColor3 = _S._E and _S._V._s or _S._V._u end, function() _openCP(_S._C_Es, true) end)
 _EsB.BackgroundColor3 = _S._V._u
 
-local _TrB = _bldB("TOGGLE TRACERS", UDim2.new(0,0,0,180), UDim2.new(1,0,0,30), function(b) _S._Tr = not _S._Tr b.BackgroundColor3 = _S._Tr and _S._V._s or _S._V._u end)
+local _TrB = _bldB("TRACERS", UDim2.new(0,0,0,180), UDim2.new(1,0,0,30), function(b) _S._Tr = not _S._Tr b.BackgroundColor3 = _S._Tr and _S._V._s or _S._V._u end, function() _openCP(_S._C_Tr, true) end)
 _TrB.BackgroundColor3 = _S._V._u
 
-local _FvB = _bldB("TOGGLE FOV CIRCLE", UDim2.new(0,0,0,216), UDim2.new(1,0,0,30), function(b) _S._Fv = not _S._Fv b.BackgroundColor3 = _S._Fv and _S._V._s or _S._V._u _fO.Visible = _S._Fv end)
+local _FvB = _bldB("FOV CIRCLE", UDim2.new(0,0,0,216), UDim2.new(1,0,0,30), function(b) _S._Fv = not _S._Fv b.BackgroundColor3 = _S._Fv and _S._V._s or _S._V._u end, function() _openCP(_S._C_Fv, false) end)
 _FvB.BackgroundColor3 = _S._V._u
 
 local _WcB = _bldB("WALL CHECK", UDim2.new(0,0,0,252), UDim2.new(1,0,0,30), function(b) _S._W = not _S._W b.BackgroundColor3 = _S._W and _S._V._s or _S._V._u end)
@@ -240,15 +309,12 @@ _WcB.BackgroundColor3 = _S._V._u
 
 local _SpB = _bldB("LOCK SPEED: 100%", UDim2.new(0,0,0,288), UDim2.new(1,0,0,30), function(b) _S._Sp = (_S._Sp <= 0.2) and 1 or _S._Sp - 0.2 b.Text = "LOCK SPEED: " .. math.floor(_S._Sp * 100) .. "%" end)
 
-local _K1B = _bldB("BIND LOCK: MB2", UDim2.new(0,0,0,324), UDim2.new(0.48,0,0,30), function() _S._mK = "K1" end)
-local _K2B = _bldB("BIND SWITCH: MB3", UDim2.new(0.52,0,0,324), UDim2.new(0.48,0,0,30), function() _S._mK = "K2" end)
-
 local _Inf = Instance.new("TextLabel", _M)
 _Inf.Size = UDim2.new(1, -20, 0, 45)
 _Inf.Position = UDim2.new(0, 10, 1, -50)
 _Inf.BackgroundTransparency = 1
-_Inf.Text = "READY"
-_Inf.TextColor3 = Color3.new(0.6, 0.6, 0.6)
+_Inf.Text = "SYSTEM READY"
+_Inf.TextColor3 = Color3.new(0.7, 0.7, 0.7)
 _Inf.Font = Enum.Font.Code
 _Inf.TextSize = 10
 
@@ -258,17 +324,21 @@ _mB.MouseButton1Click:Connect(function()
     _ts:Create(_M, TweenInfo.new(0.3, Enum.EasingStyle.Quart), {Size = _S._op and UDim2.new(0, 380, 0, 700) or UDim2.new(0, 380, 0, 50)}):Play()
 end)
 
+local function _getCol(cfg, p)
+    if cfg.Mode == "Rainbow" then return Color3.fromHSV(tick() % 5 / 5, 1, 1) end
+    if cfg.Mode == "Team" and p then return p.TeamColor.Color end
+    return cfg.Color
+end
+
 local function _gnr()
     local n, d = nil, math.huge
     for p, v in pairs(_S._L) do
         if v and p ~= _p0 and p.Character and p.Character:FindFirstChild("Humanoid") and p.Character.Humanoid.Health > 0 then
-            if _vChk(p.Character) and _inFov(p) then
-                local r = p.Character:FindFirstChild("HumanoidRootPart")
-                local mR = _p0.Character and _p0.Character:FindFirstChild("HumanoidRootPart")
-                if r and mR then
-                    local m = (r.Position - mR.Position).Magnitude
-                    if m < d then d = m n = p end
-                end
+            local r = p.Character:FindFirstChild("HumanoidRootPart")
+            if r and _vChk(p.Character) then
+                local sP, onS = _c0:WorldToViewportPoint(r.Position)
+                local dist = (Vector2.new(sP.X, sP.Y) - Vector2.new(_c0.ViewportSize.X/2, _c0.ViewportSize.Y/2)).Magnitude
+                if (not _S._Fv or dist <= _S._Fr) and dist < d then d = dist n = p end
             end
         end
     end
@@ -276,104 +346,43 @@ local function _gnr()
 end
 
 _g4.RenderStepped:Connect(function()
-    if _S._mK then _Inf.Text = "LISTENING..." return end
     if _S._A then local n = _gnr() if n then _S._T = n end end
-    if _S._T and (_S._T.Character == nil or (_S._T.Character:FindFirstChild("Humanoid") and _S._T.Character.Humanoid.Health <= 0) or not _vChk(_S._T.Character) or not _inFov(_S._T)) then
+    if _S._T and (_S._T.Character == nil or (_S._T.Character:FindFirstChild("Humanoid") and _S._T.Character.Humanoid.Health <= 0) or not _vChk(_S._T.Character)) then
         _S._T = _S._A and _gnr() or nil
     end
 
-    local iP = false
-    if _S._K1.Name:find("MouseButton") then iP = _g3:IsMouseButtonPressed(_S._K1) else iP = _g3:IsKeyDown(_S._K1) end
+    local iP = _g3:IsMouseButtonPressed(_S._K1)
     if iP and _S._T then
-        local c = _S._T.Character
-        local p = c and c:FindFirstChild(_S._P)
+        local p = _S._T.Character:FindFirstChild(_S._P)
         if p then _c0.CFrame = _c0.CFrame:Lerp(CFrame.lookAt(_c0.CFrame.Position, p.Position), _S._Sp) end
     end
 
-    _fO.Position = Vector2.new(_c0.ViewportSize.X/2, _c0.ViewportSize.Y/2)
     _fO.Visible = _S._Fv
-    _Inf.Text = "TARGET: " .. (_S._T and _S._T.Name:upper() or "NONE") .. " | PART: " .. _S._P:upper()
+    _fO.Position = Vector2.new(_c0.ViewportSize.X/2, _c0.ViewportSize.Y/2)
+    _fO.Color = _getCol(_S._C_Fv)
 
     for _, p in pairs(_g1:GetPlayers()) do
         if p == _p0 then continue end
         local c = p.Character
-        local s = _S._L[p] and _S._E
-        
-        if not _tL[p] then _tL[p] = Drawing.new("Line") end
-        local tracer = _tL[p]
-        tracer.Visible = false
-
         if c and c:FindFirstChild("HumanoidRootPart") then
             local r = c.HumanoidRootPart
             local h = c:FindFirstChild("BPA_H") or Instance.new("Highlight", c)
             h.Name = "BPA_H"
-            h.Enabled = s
-            h.FillTransparency = 0.5
-            h.OutlineColor = Color3.fromHSV(tick() % 5 / 5, 1, 1)
-            h.FillColor = Color3.new(1, 1, 1)
+            h.Enabled = _S._L[p] and _S._E
+            h.OutlineColor = _getCol(_S._C_Es, p)
+            h.FillTransparency = 1
 
-            local b = r:FindFirstChild("BPA_E") or Instance.new("BillboardGui", r)
-            b.Name = "BPA_E"
-            b.AlwaysOnTop = true
-            b.Size = UDim2.new(0, 100, 0, 50)
-            b.ExtentsOffset = Vector3.new(0, 3, 0)
-            b.Enabled = s
-            
-            local l = b:FindFirstChild("Txt") or Instance.new("TextLabel", b)
-            l.Name = "Txt"
-            l.BackgroundTransparency = 1
-            l.Size = UDim2.new(1, 0, 1, 0)
-            l.Font = Enum.Font.Code
-            l.TextSize = 12
-            l.TextColor3 = p.TeamColor.Color
-            l.TextStrokeTransparency = 0
-            l.TextStrokeColor3 = Color3.new(0, 0, 0)
-            local dist = _p0.Character and _p0.Character:FindFirstChild("HumanoidRootPart") and math.floor((r.Position - _p0.Character.HumanoidRootPart.Position).Magnitude) or 0
-            l.Text = p.Name .. "\n" .. dist .. " studs"
-
-            if _S._Tr and _S._L[p] then
-                local screenPos, onScreen = _c0:WorldToViewportPoint(r.Position)
-                if onScreen then
-                    tracer.To = Vector2.new(screenPos.X, screenPos.Y)
-                    tracer.From = Vector2.new(_c0.ViewportSize.X/2, _c0.ViewportSize.Y)
-                    tracer.Color = p.TeamColor.Color
-                    tracer.Thickness = 1
-                    tracer.Transparency = 0.8
-                    tracer.Visible = true
-                end
-            end
+            if not _tL[p] then _tL[p] = Drawing.new("Line") end
+            local tr = _tL[p]
+            local sP, onS = _c0:WorldToViewportPoint(r.Position)
+            if onS and _S._L[p] and _S._Tr then
+                tr.Visible = true
+                tr.To = Vector2.new(sP.X, sP.Y)
+                tr.From = Vector2.new(_c0.ViewportSize.X/2, _c0.ViewportSize.Y)
+                tr.Color = _getCol(_S._C_Tr, p)
+            else tr.Visible = false end
         end
     end
 end)
 
-_g3.InputBegan:Connect(function(i, g)
-    if _S._mK then
-        local _k = (i.UserInputType == Enum.UserInputType.Keyboard) and i.KeyCode or i.UserInputType
-        if _S._mK == "K1" then _S._K1 = _k _K1B.Text = "LOCK: " .. _k.Name
-        elseif _S._mK == "K2" then _S._K2 = _k _K2B.Text = "SWITCH: " .. _k.Name end
-        _S._mK = nil return
-    end
-    if not g and i.UserInputType == _S._K2 then _S._T = _gnr() end
-end)
-
-local function _dynUpd(p)
-    if _S._OpM then _tgl(p, p.Team ~= _p0.Team) end
-    p:GetPropertyChangedSignal("Team"):Connect(function()
-        if _S._OpM then _clrAll() for _,pl in pairs(_g1:GetPlayers()) do if pl ~= _p0 and pl.Team ~= _p0.Team then _tgl(pl, true) end end end
-        _rfsh()
-    end)
-end
-
-_g1.PlayerAdded:Connect(function(p)
-    _dynUpd(p)
-    _rfsh()
-end)
-
-_g1.PlayerRemoving:Connect(function(p)
-    _S._L[p] = nil
-    if _tL[p] then _tL[p]:Remove() _tL[p] = nil end
-    _rfsh()
-end)
-
-for _, p in pairs(_g1:GetPlayers()) do _dynUpd(p) end
 _rfsh()
