@@ -3,6 +3,7 @@ local _g2 = game:GetService("Teams")
 local _g3 = game:GetService("UserInputService")
 local _g4 = game:GetService("RunService")
 local _ts = game:GetService("TweenService")
+local _cg = game:GetService("CoreGui")
 local _p0 = _g1.LocalPlayer
 local _c0 = workspace.CurrentCamera
 
@@ -18,6 +19,7 @@ local _S = {
     _op = true,
     _E = false,
     _W = false,
+    _OpM = false,
     _V = {
         _m = Color3.fromRGB(24, 26, 30),
         _h = Color3.fromRGB(34, 37, 43),
@@ -27,10 +29,11 @@ local _S = {
     }
 }
 
-local _G = Instance.new("ScreenGui", game.CoreGui)
-_G.DisplayOrder = 9999
+local _G = Instance.new("ScreenGui")
 _G.Name = "B_P_A_" .. math.random(100, 999)
 _G.ResetOnSpawn = false
+_G.DisplayOrder = 9999
+_G.Parent = _cg
 
 local function _rnd(p, r)
     local c = Instance.new("UICorner")
@@ -145,7 +148,7 @@ local function _rfsh()
             b.TextColor3 = Color3.new(1, 1, 1)
             b.Font = Enum.Font.Code
             b.TextXAlignment = Enum.TextXAlignment.Left
-            b.LayoutOrder = 100
+            b.LayoutOrder = 999
             b.BackgroundColor3 = _S._L[p] and _S._V._s or _S._V._u
             _rnd(b, 5)
             b.MouseButton1Click:Connect(function() _tgl(p) end)
@@ -168,7 +171,9 @@ local function _bldB(txt, pos, sz, cb)
     b.Font = Enum.Font.Code
     b.TextSize = 10
     _rnd(b, 6)
-    b.MouseButton1Click:Connect(cb)
+    b.MouseButton1Click:Connect(function()
+        cb(b)
+    end)
     return b
 end
 
@@ -177,23 +182,31 @@ _bldB("TORSO", UDim2.new(0.34,0,0,0), nil, function() _S._P = "UpperTorso" end)
 _bldB("LEGS", UDim2.new(0.68,0,0,0), nil, function() _S._P = "LeftLowerLeg" end)
 _bldB("ALL", UDim2.new(0,0,0,38), nil, function() for _,p in pairs(_g1:GetPlayers()) do _tgl(p, true) end end)
 _bldB("NONE", UDim2.new(0.34,0,0,38), nil, function() for _,p in pairs(_g1:GetPlayers()) do _tgl(p, false) end end)
-_bldB("OPPOSING", UDim2.new(0.68,0,0,38), nil, function() for _,p in pairs(_g1:GetPlayers()) do if p ~= _p0 then _tgl(p, p.Team ~= _p0.Team) end end end)
 
-local _AtB = _bldB("AUTO MODE", UDim2.new(0,0,0,76), UDim2.new(1,0,0,32), function()
+local _OpB = _bldB("OPPOSING", UDim2.new(0.68,0,0,38), nil, function(b) 
+    _S._OpM = not _S._OpM 
+    b.BackgroundColor3 = _S._OpM and _S._V._s or _S._V._u
+    for _,p in pairs(_g1:GetPlayers()) do 
+        if p ~= _p0 then _tgl(p, _S._OpM and p.Team ~= _p0.Team or false) end 
+    end 
+end)
+_OpB.BackgroundColor3 = _S._V._u
+
+local _AtB = _bldB("AUTO LOCK", UDim2.new(0,0,0,76), UDim2.new(1,0,0,32), function(b)
     _S._A = not _S._A
-    _AtB.BackgroundColor3 = _S._A and _S._V._s or _S._V._u
+    b.BackgroundColor3 = _S._A and _S._V._s or _S._V._u
 end)
 _AtB.BackgroundColor3 = _S._V._u
 
-local _EsB = _bldB("TOGGLE ESP", UDim2.new(0,0,0,114), UDim2.new(1,0,0,32), function()
+local _EsB = _bldB("TOGGLE ESP", UDim2.new(0,0,0,114), UDim2.new(1,0,0,32), function(b)
     _S._E = not _S._E
-    _EsB.BackgroundColor3 = _S._E and _S._V._s or _S._V._u
+    b.BackgroundColor3 = _S._E and _S._V._s or _S._V._u
 end)
 _EsB.BackgroundColor3 = _S._V._u
 
-local _WcB = _bldB("WALL CHECK", UDim2.new(0,0,0,152), UDim2.new(1,0,0,32), function()
+local _WcB = _bldB("WALL CHECK", UDim2.new(0,0,0,152), UDim2.new(1,0,0,32), function(b)
     _S._W = not _S._W
-    _WcB.BackgroundColor3 = _S._W and _S._V._s or _S._V._u
+    b.BackgroundColor3 = _S._W and _S._V._s or _S._V._u
 end)
 _WcB.BackgroundColor3 = _S._V._u
 
@@ -287,16 +300,22 @@ _g4.RenderStepped:Connect(function()
     end
 end)
 
-_g3.InputBegan:Connect(function(i, g)
-    if _S._mK then
-        local _k = (i.UserInputType == Enum.UserInputType.Keyboard) and i.KeyCode or i.UserInputType
-        if _S._mK == "K1" then _S._K1 = _k _K1B.Text = "L: " .. _k.Name
-        elseif _S._mK == "K2" then _S._K2 = _k _K2B.Text = "S: " .. _k.Name end
-        _S._mK = nil return
-    end
-    if not g and i.UserInputType == _S._K2 then _S._T = _gnr() end
+local function _dynUpd(p)
+    if _S._OpM then _tgl(p, p.Team ~= _p0.Team) end
+    p:GetPropertyChangedSignal("Team"):Connect(function()
+        if _S._OpM then _tgl(p, p.Team ~= _p0.Team) end
+    end)
+end
+
+_g1.PlayerAdded:Connect(function(p)
+    _dynUpd(p)
+    _rfsh()
 end)
 
-_g1.PlayerAdded:Connect(_rfsh)
-_g1.PlayerRemoving:Connect(function(p) _S._L[p] = nil _rfsh() end)
+_g1.PlayerRemoving:Connect(function(p)
+    _S._L[p] = nil
+    _rfsh()
+end)
+
+for _, p in pairs(_g1:GetPlayers()) do _dynUpd(p) end
 _rfsh()
