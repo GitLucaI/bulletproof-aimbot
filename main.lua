@@ -36,7 +36,7 @@ local _S = {
 }
 
 local _G = Instance.new("ScreenGui")
-_G.Name = "B_P_A_EXTREME"
+_G.Name = "BulletproofAimbotServiceV1byGitLucaI"
 _G.ResetOnSpawn = false
 _G.DisplayOrder = 9999
 _G.Parent = _cg
@@ -66,79 +66,86 @@ _M.ClipsDescendants = true
 _rnd(_M, 12)
 
 local _CP = Instance.new("Frame", _G)
-_CP.Size = UDim2.new(0, 280, 0, 350)
-_CP.Position = UDim2.new(0.5, 200, 0.5, -175)
+_CP.Size = UDim2.new(0, 300, 0, 420)
+_CP.Position = UDim2.new(0.5, 200, 0.5, -210)
 _CP.BackgroundColor3 = _S._V._h
 _CP.Visible = false
 _CP.Active = true
 _CP.Draggable = true
+_CP.ZIndex = 100
 _rnd(_CP, 10)
 
-local _CW = Instance.new("ImageButton", _CP)
+local _CTl = Instance.new("TextLabel", _CP)
+_CTl.Size = UDim2.new(1, 0, 0, 40)
+_CTl.BackgroundTransparency = 1
+_CTl.Text = "COLOR CONFIGURATOR"
+_CTl.TextColor3 = Color3.new(1, 1, 1)
+_CTl.Font = Enum.Font.Code
+_CTl.TextSize = 14
+_CTl.ZIndex = 101
+
+local _CW = Instance.new("ImageLabel", _CP)
 _CW.Size = UDim2.new(0, 150, 0, 150)
-_CW.Position = UDim2.new(0.5, -75, 0, 40)
+_CW.Position = UDim2.new(0.5, -75, 0, 50)
 _CW.Image = "rbxassetid://2849323573"
 _CW.BackgroundTransparency = 1
+_CW.ZIndex = 101
 
 local _R_In = Instance.new("TextBox", _CP)
-_R_In.Size = UDim2.new(0, 40, 0, 30)
-_R_In.Position = UDim2.new(0.1, 0, 0, 200)
+_R_In.Size = UDim2.new(0, 60, 0, 30)
+_R_In.Position = UDim2.new(0.1, 0, 0, 220)
 _R_In.Text = "255"
 _R_In.BackgroundColor3 = _S._V._ac
 _R_In.TextColor3 = Color3.new(1,0,0)
+_R_In.Font = Enum.Font.Code
+_R_In.ClearTextOnFocus = false
+_R_In.ZIndex = 101
 _rnd(_R_In, 4)
 
 local _G_In = _R_In:Clone()
 _G_In.Parent = _CP
-_G_In.Position = UDim2.new(0.4, 0, 0, 200)
+_G_In.Position = UDim2.new(0.4, 0, 0, 220)
 _G_In.TextColor3 = Color3.new(0,1,0)
 
 local _B_In = _R_In:Clone()
 _B_In.Parent = _CP
-_B_In.Position = UDim2.new(0.7, 0, 0, 200)
+_B_In.Position = UDim2.new(0.7, 0, 0, 220)
 _B_In.TextColor3 = Color3.new(0,0,1)
 
 local _cur_cfg = nil
-local function _setMode(m) if _cur_cfg then _cur_cfg.Mode = m end end
 
-local _btn_R = Instance.new("TextButton", _CP)
-_btn_R.Size = UDim2.new(0.28, 0, 0, 30)
-_btn_R.Position = UDim2.new(0.04, 0, 0, 250)
-_btn_R.Text = "RAINBOW"
-_btn_R.BackgroundColor3 = _S._V._ac
-_btn_R.TextColor3 = Color3.new(1,1,1)
-_rnd(_btn_R, 5)
-_btn_R.MouseButton1Click:Connect(function() _setMode("Rainbow") end)
+local function _mBtn(txt, pos, col, cb)
+    local b = Instance.new("TextButton", _CP)
+    b.Size = UDim2.new(0.28, 0, 0, 30)
+    b.Position = pos
+    b.Text = txt
+    b.BackgroundColor3 = col
+    b.TextColor3 = Color3.new(1, 1, 1)
+    b.Font = Enum.Font.Code
+    b.TextSize = 10
+    b.ZIndex = 101
+    _rnd(b, 5)
+    b.MouseButton1Click:Connect(cb)
+    return b
+end
 
-local _btn_S = _btn_R:Clone()
-_btn_S.Parent = _CP
-_btn_S.Position = UDim2.new(0.36, 0, 0, 250)
-_btn_S.Text = "SELECTED"
-_btn_S.MouseButton1Click:Connect(function() _setMode("Static") end)
+_mBtn("RAINBOW", UDim2.new(0.04, 0, 0, 270), _S._V._ac, function() if _cur_cfg then _cur_cfg.Mode = "Rainbow" end end)
+_mBtn("STATIC", UDim2.new(0.36, 0, 0, 270), _S._V._ac, function() if _cur_cfg then _cur_cfg.Mode = "Static" end end)
+local _tBtn = _mBtn("TEAM", UDim2.new(0.68, 0, 0, 270), _S._V._ac, function() if _cur_cfg then _cur_cfg.Mode = "Team" end end)
 
-local _btn_T = _btn_R:Clone()
-_btn_T.Parent = _CP
-_btn_T.Position = UDim2.new(0.68, 0, 0, 250)
-_btn_T.Text = "TEAM"
-_btn_T.MouseButton1Click:Connect(function() _setMode("Team") end)
-
-local _btn_Conf = _btn_R:Clone()
-_btn_Conf.Parent = _CP
-_btn_Conf.Size = UDim2.new(0.44, 0, 0, 35)
-_btn_Conf.Position = UDim2.new(0.04, 0, 0, 300)
-_btn_Conf.Text = "CONFIRM"
-_btn_Conf.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
-_btn_Conf.MouseButton1Click:Connect(function() 
-    if _cur_cfg then _cur_cfg.Color = Color3.fromRGB(tonumber(_R_In.Text) or 0, tonumber(_G_In.Text) or 0, tonumber(_B_In.Text) or 0) end
-    _CP.Visible = false 
+local _btn_Conf = _mBtn("CONFIRM", UDim2.new(0.04, 0, 0, 330), Color3.fromRGB(0, 150, 0), function()
+    if _cur_cfg then
+        local r, g, b = tonumber(_R_In.Text) or 255, tonumber(_G_In.Text) or 255, tonumber(_B_In.Text) or 255
+        _cur_cfg.Color = Color3.fromRGB(r, g, b)
+    end
+    _CP.Visible = false
 end)
+_btn_Conf.Size = UDim2.new(0.44, 0, 0, 40)
 
-local _btn_Canc = _btn_Conf:Clone()
-_btn_Canc.Parent = _CP
-_btn_Canc.Position = UDim2.new(0.52, 0, 0, 300)
-_btn_Canc.Text = "CANCEL"
-_btn_Canc.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
-_btn_Canc.MouseButton1Click:Connect(function() _CP.Visible = false end)
+local _btn_Canc = _mBtn("CANCEL", UDim2.new(0.52, 0, 0, 330), Color3.fromRGB(150, 0, 0), function()
+    _CP.Visible = false
+end)
+_btn_Canc.Size = UDim2.new(0.44, 0, 0, 40)
 
 local _H = Instance.new("Frame", _M)
 _H.Size = UDim2.new(1, 0, 0, 50)
@@ -149,7 +156,7 @@ local _Tl = Instance.new("TextLabel", _H)
 _Tl.Size = UDim2.new(1, -100, 1, 0)
 _Tl.Position = UDim2.new(0, 15, 0, 0)
 _Tl.BackgroundTransparency = 1
-_Tl.Text = "OVERLORD V6"
+_Tl.Text = "BULLETPROOF AIMBOT V1"
 _Tl.TextColor3 = Color3.new(1, 1, 1)
 _Tl.Font = Enum.Font.Code
 _Tl.TextSize = 18
@@ -183,11 +190,10 @@ _Ly.SortOrder = Enum.SortOrder.LayoutOrder
 
 local function _vChk(p)
     if not _S._W then return true end
-    local c = _p0.Character
-    if not c or not p then return false end
-    local rP = p:FindFirstChild(_S._P)
+    local c, rP = _p0.Character, p:FindFirstChild(_S._P)
+    if not (c and rP) then return false end
     local mP = c:FindFirstChild("Head")
-    if not rP or not mP then return false end
+    if not mP then return false end
     local rPms = RaycastParams.new()
     rPms.FilterType = Enum.RaycastFilterType.Exclude
     rPms.FilterDescendantsInstances = {c, p.Parent}
@@ -195,26 +201,27 @@ local function _vChk(p)
     return not r
 end
 
-local function _updBtn(p)
+local function _tgl(p, v)
+    if p == _p0 then return end
+    _S._L[p] = (v ~= nil and v or not _S._L[p])
     local b = _Sf:FindFirstChild(p.Name)
     if b then b.BackgroundColor3 = _S._L[p] and _S._V._s or _S._V._u end
 end
 
-local function _updTeamBtn(t, b)
-    local plrs = t:GetPlayers()
-    local active = #plrs > 0
-    for _,p in pairs(plrs) do if not _S._L[p] then active = false break end end
-    b.BackgroundColor3 = active and _S._V._s or _S._V._u
-end
-
-local function _tgl(p, v)
-    if p == _p0 then return end
-    _S._L[p] = (v ~= nil and v or not _S._L[p])
-    _updBtn(p)
-end
-
 local function _clrAll()
-    for _,p in pairs(_g1:GetPlayers()) do _S._L[p] = false end
+    for _,p in pairs(_g1:GetPlayers()) do
+        _S._L[p] = false
+    end
+end
+
+local function _updOpponents()
+    if not _S._OpM then return end
+    _clrAll()
+    for _, p in pairs(_g1:GetPlayers()) do
+        if p ~= _p0 and p.Team ~= _p0.Team then
+            _S._L[p] = true
+        end
+    end
 end
 
 local function _rfsh()
@@ -226,13 +233,16 @@ local function _rfsh()
         b.TextColor3 = Color3.new(1, 1, 1)
         b.Font = Enum.Font.Code
         _rnd(b, 5)
-        _updTeamBtn(t, b)
+        local plrs = t:GetPlayers()
+        local active = #plrs > 0
+        for _,p in pairs(plrs) do if not _S._L[p] then active = false break end end
+        b.BackgroundColor3 = active and _S._V._s or _S._V._u
         b.MouseButton1Click:Connect(function()
-            local plrs = t:GetPlayers()
-            if #plrs > 0 then
-                local s = not _S._L[plrs[1]]
-                for _, p in pairs(plrs) do _tgl(p, s) end
-                _updTeamBtn(t, b)
+            local current = t:GetPlayers()
+            if #current > 0 then
+                local s = not _S._L[current[1]]
+                for _, p in pairs(current) do _tgl(p, s) end
+                _rfsh()
             end
         end)
     end
@@ -257,7 +267,7 @@ _Ct.Size = UDim2.new(1, -20, 0, 480)
 _Ct.Position = UDim2.new(0, 10, 0, 180)
 _Ct.BackgroundTransparency = 1
 
-local function _bldB(txt, pos, sz, cb, rcb)
+local function _bldB(txt, pos, sz, cb, cfg, hasT)
     local b = Instance.new("TextButton", _Ct)
     b.Size = sz or UDim2.new(0.31, 0, 0, 30)
     b.Position = pos
@@ -268,60 +278,47 @@ local function _bldB(txt, pos, sz, cb, rcb)
     b.TextSize = 10
     _rnd(b, 6)
     b.MouseButton1Click:Connect(function() cb(b) _rfsh() end)
-    if rcb then b.MouseButton2Click:Connect(function() rcb(b) end) end
+    if cfg then
+        local eb = Instance.new("TextButton", b)
+        eb.Size = UDim2.new(0, 24, 0, 24)
+        eb.Position = UDim2.new(1, -28, 0.5, -12)
+        eb.BackgroundColor3 = Color3.fromRGB(60, 65, 75)
+        eb.Text = "E"
+        eb.TextColor3 = Color3.new(1, 1, 1)
+        _rnd(eb, 4)
+        eb.MouseButton1Click:Connect(function()
+            _cur_cfg = cfg
+            _tBtn.Visible = hasT
+            _R_In.Text = math.floor(cfg.Color.R * 255)
+            _G_In.Text = math.floor(cfg.Color.G * 255)
+            _B_In.Text = math.floor(cfg.Color.B * 255)
+            _CP.Visible = true
+        end)
+    end
     return b
-end
-
-local function _openCP(cfg, showTeam)
-    _cur_cfg = cfg
-    _btn_T.Visible = showTeam
-    _CP.Visible = true
 end
 
 _bldB("HEAD", UDim2.new(0,0,0,0), nil, function() _S._P = "Head" end)
 _bldB("TORSO", UDim2.new(0.34,0,0,0), nil, function() _S._P = "UpperTorso" end)
 _bldB("LEGS", UDim2.new(0.68,0,0,0), nil, function() _S._P = "LeftLowerLeg" end)
-_bldB("SELECT ALL", UDim2.new(0,0,0,36), UDim2.new(0.48,0,0,30), function() _clrAll() for _,p in pairs(_g1:GetPlayers()) do _tgl(p, true) end end)
+_bldB("SELECT ALL", UDim2.new(0,0,0,36), UDim2.new(0.48,0,0,30), function() for _,p in pairs(_g1:GetPlayers()) do _tgl(p, true) end end)
 _bldB("DESELECT ALL", UDim2.new(0.52,0,0,36), UDim2.new(0.48,0,0,30), function() _clrAll() end)
 
-local _OpB = _bldB("OPPOSING TEAM", UDim2.new(0,0,0,72), UDim2.new(1,0,0,30), function(b) 
+_bldB("OPPOSING TEAM", UDim2.new(0,0,0,72), UDim2.new(1,0,0,30), function(b) 
     _S._OpM = not _S._OpM 
     b.BackgroundColor3 = _S._OpM and _S._V._s or _S._V._u
-    _clrAll()
-    if _S._OpM then for _,p in pairs(_g1:GetPlayers()) do if p ~= _p0 and p.Team ~= _p0.Team then _tgl(p, true) end end end
+    _updOpponents()
 end)
-_OpB.BackgroundColor3 = _S._V._u
 
-local _AtB = _bldB("AUTO LOCK", UDim2.new(0,0,0,108), UDim2.new(1,0,0,30), function(b) _S._A = not _S._A b.BackgroundColor3 = _S._A and _S._V._s or _S._V._u end)
-_AtB.BackgroundColor3 = _S._V._u
+_bldB("AUTO LOCK", UDim2.new(0,0,0,108), UDim2.new(1,0,0,30), function(b) _S._A = not _S._A b.BackgroundColor3 = _S._A and _S._V._s or _S._V._u end)
+_bldB("ESP / CHAMS", UDim2.new(0,0,0,144), UDim2.new(1,0,0,30), function(b) _S._E = not _S._E b.BackgroundColor3 = _S._E and _S._V._s or _S._V._u end, _S._C_Es, true)
+_bldB("TRACERS", UDim2.new(0,0,0,180), UDim2.new(1,0,0,30), function(b) _S._Tr = not _S._Tr b.BackgroundColor3 = _S._Tr and _S._V._s or _S._V._u end, _S._C_Tr, true)
+_bldB("FOV CIRCLE", UDim2.new(0,0,0,216), UDim2.new(1,0,0,30), function(b) _S._Fv = not _S._Fv b.BackgroundColor3 = _S._Fv and _S._V._s or _S._V._u end, _S._C_Fv, false)
+_bldB("WALL CHECK", UDim2.new(0,0,0,252), UDim2.new(1,0,0,30), function(b) _S._W = not _S._W b.BackgroundColor3 = _S._W and _S._V._s or _S._V._u end)
 
-local _EsB = _bldB("ESP / CHAMS", UDim2.new(0,0,0,144), UDim2.new(1,0,0,30), function(b) _S._E = not _S._E b.BackgroundColor3 = _S._E and _S._V._s or _S._V._u end, function() _openCP(_S._C_Es, true) end)
-_EsB.BackgroundColor3 = _S._V._u
-
-local _TrB = _bldB("TRACERS", UDim2.new(0,0,0,180), UDim2.new(1,0,0,30), function(b) _S._Tr = not _S._Tr b.BackgroundColor3 = _S._Tr and _S._V._s or _S._V._u end, function() _openCP(_S._C_Tr, true) end)
-_TrB.BackgroundColor3 = _S._V._u
-
-local _FvB = _bldB("FOV CIRCLE", UDim2.new(0,0,0,216), UDim2.new(1,0,0,30), function(b) _S._Fv = not _S._Fv b.BackgroundColor3 = _S._Fv and _S._V._s or _S._V._u end, function() _openCP(_S._C_Fv, false) end)
-_FvB.BackgroundColor3 = _S._V._u
-
-local _WcB = _bldB("WALL CHECK", UDim2.new(0,0,0,252), UDim2.new(1,0,0,30), function(b) _S._W = not _S._W b.BackgroundColor3 = _S._W and _S._V._s or _S._V._u end)
-_WcB.BackgroundColor3 = _S._V._u
-
-local _SpB = _bldB("LOCK SPEED: 100%", UDim2.new(0,0,0,288), UDim2.new(1,0,0,30), function(b) _S._Sp = (_S._Sp <= 0.2) and 1 or _S._Sp - 0.2 b.Text = "LOCK SPEED: " .. math.floor(_S._Sp * 100) .. "%" end)
-
-local _Inf = Instance.new("TextLabel", _M)
-_Inf.Size = UDim2.new(1, -20, 0, 45)
-_Inf.Position = UDim2.new(0, 10, 1, -50)
-_Inf.BackgroundTransparency = 1
-_Inf.Text = "SYSTEM READY"
-_Inf.TextColor3 = Color3.new(0.7, 0.7, 0.7)
-_Inf.Font = Enum.Font.Code
-_Inf.TextSize = 10
-
-_mB.MouseButton1Click:Connect(function()
-    _S._op = not _S._op
-    _mB.Text = _S._op and "-" or "+"
-    _ts:Create(_M, TweenInfo.new(0.3, Enum.EasingStyle.Quart), {Size = _S._op and UDim2.new(0, 380, 0, 700) or UDim2.new(0, 380, 0, 50)}):Play()
+local _SpB = _bldB("LOCK SPEED: 100%", UDim2.new(0,0,0,288), UDim2.new(1,0,0,30), function(b)
+    _S._Sp = (_S._Sp <= 0.2) and 1 or _S._Sp - 0.2
+    b.Text = "LOCK SPEED: " .. math.floor(_S._Sp * 100) .. "%"
 end)
 
 local function _getCol(cfg, p)
@@ -338,7 +335,10 @@ local function _gnr()
             if r and _vChk(p.Character) then
                 local sP, onS = _c0:WorldToViewportPoint(r.Position)
                 local dist = (Vector2.new(sP.X, sP.Y) - Vector2.new(_c0.ViewportSize.X/2, _c0.ViewportSize.Y/2)).Magnitude
-                if (not _S._Fv or dist <= _S._Fr) and dist < d then d = dist n = p end
+                if (not _S._Fv or dist <= _S._Fr) and dist < d then
+                    d = dist
+                    n = p
+                end
             end
         end
     end
@@ -347,31 +347,25 @@ end
 
 _g4.RenderStepped:Connect(function()
     if _S._A then local n = _gnr() if n then _S._T = n end end
-    if _S._T and (_S._T.Character == nil or (_S._T.Character:FindFirstChild("Humanoid") and _S._T.Character.Humanoid.Health <= 0) or not _vChk(_S._T.Character)) then
-        _S._T = _S._A and _gnr() or nil
-    end
-
-    local iP = _g3:IsMouseButtonPressed(_S._K1)
-    if iP and _S._T then
+    if _S._T and (_S._T.Character == nil or (_S._T.Character:FindFirstChild("Humanoid") and _S._T.Character.Humanoid.Health <= 0)) then _S._T = nil end
+    if _g3:IsMouseButtonPressed(_S._K1) and _S._T and _S._T.Character then
         local p = _S._T.Character:FindFirstChild(_S._P)
         if p then _c0.CFrame = _c0.CFrame:Lerp(CFrame.lookAt(_c0.CFrame.Position, p.Position), _S._Sp) end
     end
-
     _fO.Visible = _S._Fv
     _fO.Position = Vector2.new(_c0.ViewportSize.X/2, _c0.ViewportSize.Y/2)
     _fO.Color = _getCol(_S._C_Fv)
-
     for _, p in pairs(_g1:GetPlayers()) do
         if p == _p0 then continue end
         local c = p.Character
         if c and c:FindFirstChild("HumanoidRootPart") then
             local r = c.HumanoidRootPart
             local h = c:FindFirstChild("BPA_H") or Instance.new("Highlight", c)
+            h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
             h.Name = "BPA_H"
             h.Enabled = _S._L[p] and _S._E
             h.OutlineColor = _getCol(_S._C_Es, p)
             h.FillTransparency = 1
-
             if not _tL[p] then _tL[p] = Drawing.new("Line") end
             local tr = _tL[p]
             local sP, onS = _c0:WorldToViewportPoint(r.Position)
@@ -380,9 +374,28 @@ _g4.RenderStepped:Connect(function()
                 tr.To = Vector2.new(sP.X, sP.Y)
                 tr.From = Vector2.new(_c0.ViewportSize.X/2, _c0.ViewportSize.Y)
                 tr.Color = _getCol(_S._C_Tr, p)
+                tr.Thickness = 1.5
             else tr.Visible = false end
-        end
+        elseif _tL[p] then _tL[p].Visible = false end
     end
+end)
+
+_p0:GetPropertyChangedSignal("Team"):Connect(function()
+    _updOpponents()
+    _rfsh()
+end)
+
+_g1.PlayerAdded:Connect(_rfsh)
+_g1.PlayerRemoving:Connect(function(p)
+    if _tL[p] then _tL[p]:Remove() _tL[p] = nil end
+    _S._L[p] = nil
+    _rfsh()
+end)
+
+_mB.MouseButton1Click:Connect(function()
+    _S._op = not _S._op
+    _mB.Text = _S._op and "-" or "+"
+    _ts:Create(_M, TweenInfo.new(0.3, Enum.EasingStyle.Quart), {Size = _S._op and UDim2.new(0, 380, 0, 700) or UDim2.new(0, 380, 0, 50)}):Play()
 end)
 
 _rfsh()
