@@ -136,10 +136,21 @@ local function _updBtn(p)
     if b then b.BackgroundColor3 = _S._L[p] and _S._V._s or _S._V._u end
 end
 
+local function _updTeamBtn(t, b)
+    local plrs = t:GetPlayers()
+    local active = #plrs > 0
+    for _,p in pairs(plrs) do if not _S._L[p] then active = false break end end
+    b.BackgroundColor3 = active and _S._V._s or _S._V._u
+end
+
 local function _tgl(p, v)
     if p == _p0 then return end
     _S._L[p] = (v ~= nil and v or not _S._L[p])
     _updBtn(p)
+end
+
+local function _clrAll()
+    for _,p in pairs(_g1:GetPlayers()) do _S._L[p] = false end
 end
 
 local function _rfsh()
@@ -148,17 +159,17 @@ local function _rfsh()
         local b = Instance.new("TextButton", _Sf)
         b.Size = UDim2.new(1, -10, 0, 30)
         b.Text = " [TEAM] " .. t.Name:upper()
-        b.BackgroundColor3 = _S._V._h
-        b.TextColor3 = Color3.new(0.9, 0.9, 0.9)
+        b.TextColor3 = Color3.new(1, 1, 1)
         b.Font = Enum.Font.Code
         b.LayoutOrder = 1
         _rnd(b, 5)
+        _updTeamBtn(t, b)
         b.MouseButton1Click:Connect(function()
             local plrs = t:GetPlayers()
             if #plrs > 0 then
                 local s = not _S._L[plrs[1]]
                 for _, p in pairs(plrs) do _tgl(p, s) end
-                b.BackgroundColor3 = s and _S._V._s or _S._V._h
+                _updTeamBtn(t, b)
             end
         end)
     end
@@ -194,20 +205,21 @@ local function _bldB(txt, pos, sz, cb)
     b.Font = Enum.Font.Code
     b.TextSize = 10
     _rnd(b, 6)
-    b.MouseButton1Click:Connect(function() cb(b) end)
+    b.MouseButton1Click:Connect(function() cb(b) _rfsh() end)
     return b
 end
 
 _bldB("HEAD", UDim2.new(0,0,0,0), nil, function() _S._P = "Head" end)
 _bldB("TORSO", UDim2.new(0.34,0,0,0), nil, function() _S._P = "UpperTorso" end)
 _bldB("LEGS", UDim2.new(0.68,0,0,0), nil, function() _S._P = "LeftLowerLeg" end)
-_bldB("SELECT ALL", UDim2.new(0,0,0,36), UDim2.new(0.48,0,0,30), function() for _,p in pairs(_g1:GetPlayers()) do _tgl(p, true) end end)
-_bldB("DESELECT ALL", UDim2.new(0.52,0,0,36), UDim2.new(0.48,0,0,30), function() for _,p in pairs(_g1:GetPlayers()) do _tgl(p, false) end end)
+_bldB("SELECT ALL", UDim2.new(0,0,0,36), UDim2.new(0.48,0,0,30), function() _clrAll() for _,p in pairs(_g1:GetPlayers()) do _tgl(p, true) end end)
+_bldB("DESELECT ALL", UDim2.new(0.52,0,0,36), UDim2.new(0.48,0,0,30), function() _clrAll() end)
 
 local _OpB = _bldB("OPPOSING TEAM", UDim2.new(0,0,0,72), UDim2.new(1,0,0,30), function(b) 
     _S._OpM = not _S._OpM 
     b.BackgroundColor3 = _S._OpM and _S._V._s or _S._V._u
-    for _,p in pairs(_g1:GetPlayers()) do if p ~= _p0 then _tgl(p, _S._OpM and p.Team ~= _p0.Team or false) end end 
+    _clrAll()
+    if _S._OpM then for _,p in pairs(_g1:GetPlayers()) do if p ~= _p0 and p.Team ~= _p0.Team then _tgl(p, true) end end end
 end)
 _OpB.BackgroundColor3 = _S._V._u
 
@@ -347,7 +359,7 @@ end)
 local function _dynUpd(p)
     if _S._OpM then _tgl(p, p.Team ~= _p0.Team) end
     p:GetPropertyChangedSignal("Team"):Connect(function()
-        if _S._OpM then _tgl(p, p.Team ~= _p0.Team) end
+        if _S._OpM then _clrAll() for _,pl in pairs(_g1:GetPlayers()) do if pl ~= _p0 and pl.Team ~= _p0.Team then _tgl(pl, true) end end end
         _rfsh()
     end)
 end
