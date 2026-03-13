@@ -23,6 +23,7 @@ local _S = {
     _Fv = false,
     _Fr = 150,
     _OpM = false,
+    _drS = false,
     _C_Es = {Mode = "Rainbow", Color = Color3.new(1,1,1)},
     _C_Tr = {Mode = "Team", Color = Color3.new(1,1,1)},
     _C_Fv = {Mode = "Static", Color = Color3.new(1,1,1)},
@@ -31,12 +32,13 @@ local _S = {
         _h = Color3.fromRGB(25, 27, 32),
         _s = Color3.fromRGB(0, 255, 150),
         _u = Color3.fromRGB(255, 70, 70),
-        _ac = Color3.fromRGB(35, 38, 45)
+        _ac = Color3.fromRGB(35, 38, 45),
+        _gr = ColorSequence.new(Color3.fromRGB(0, 255, 150), Color3.fromRGB(0, 180, 255))
     }
 }
 
 local _G = Instance.new("ScreenGui")
-_G.Name = "BulletproofAimbotServiceV1byGitLucaI"
+_G.Name = "BulletproofAimbotServiceV1"
 _G.ResetOnSpawn = false
 _G.DisplayOrder = 9999
 _G.Parent = _cg
@@ -56,14 +58,30 @@ _fO.Radius = _S._Fr
 local _tL = {}
 
 local _M = Instance.new("Frame", _G)
-_M.Size = UDim2.new(0, 380, 0, 700)
-_M.Position = UDim2.new(0.5, -190, 0.5, -350)
+_M.Size = UDim2.new(0, 380, 0, 750)
+_M.Position = UDim2.new(0.5, -190, 0.5, -375)
 _M.BackgroundColor3 = _S._V._m
 _M.BorderSizePixel = 0
 _M.Active = true
-_M.Draggable = true
 _M.ClipsDescendants = true
 _rnd(_M, 12)
+
+local _drM = false
+local _mOff = Vector2.new(0,0)
+
+_M.InputBegan:Connect(function(input)
+    if not _S._drS and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
+        _drM = true
+        local mPos = _g3:GetMouseLocation()
+        _mOff = Vector2.new(mPos.X - _M.AbsolutePosition.X, mPos.Y - _M.AbsolutePosition.Y)
+    end
+end)
+
+_g3.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        _drM = false
+    end
+end)
 
 local _CP = Instance.new("Frame", _G)
 _CP.Size = UDim2.new(0, 300, 0, 420)
@@ -71,7 +89,6 @@ _CP.Position = UDim2.new(0.5, 200, 0.5, -210)
 _CP.BackgroundColor3 = _S._V._h
 _CP.Visible = false
 _CP.Active = true
-_CP.Draggable = true
 _CP.ZIndex = 100
 _rnd(_CP, 10)
 
@@ -156,7 +173,7 @@ local _Tl = Instance.new("TextLabel", _H)
 _Tl.Size = UDim2.new(1, -100, 1, 0)
 _Tl.Position = UDim2.new(0, 15, 0, 0)
 _Tl.BackgroundTransparency = 1
-_Tl.Text = "BULLETPROOF AIMBOT V1"
+_Tl.Text = "BULLETPROOF V1"
 _Tl.TextColor3 = Color3.new(1, 1, 1)
 _Tl.Font = Enum.Font.Code
 _Tl.TextSize = 18
@@ -176,7 +193,7 @@ _Cn.Position = UDim2.new(0, 0, 0, 50)
 _Cn.BackgroundTransparency = 1
 
 local _Sf = Instance.new("ScrollingFrame", _Cn)
-_Sf.Size = UDim2.new(1, -20, 0, 160)
+_Sf.Size = UDim2.new(1, -20, 0, 140)
 _Sf.Position = UDim2.new(0, 10, 0, 10)
 _Sf.BackgroundColor3 = _S._V._ac
 _Sf.BackgroundTransparency = 0.8
@@ -209,18 +226,14 @@ local function _tgl(p, v)
 end
 
 local function _clrAll()
-    for _,p in pairs(_g1:GetPlayers()) do
-        _S._L[p] = false
-    end
+    for _,p in pairs(_g1:GetPlayers()) do _S._L[p] = false end
 end
 
 local function _updOpponents()
     if not _S._OpM then return end
     _clrAll()
     for _, p in pairs(_g1:GetPlayers()) do
-        if p ~= _p0 and p.Team ~= _p0.Team then
-            _S._L[p] = true
-        end
+        if p ~= _p0 and p.Team ~= _p0.Team then _S._L[p] = true end
     end
 end
 
@@ -263,8 +276,8 @@ local function _rfsh()
 end
 
 local _Ct = Instance.new("Frame", _Cn)
-_Ct.Size = UDim2.new(1, -20, 0, 480)
-_Ct.Position = UDim2.new(0, 10, 0, 180)
+_Ct.Size = UDim2.new(1, -20, 0, 500)
+_Ct.Position = UDim2.new(0, 10, 0, 160)
 _Ct.BackgroundTransparency = 1
 
 local function _bldB(txt, pos, sz, cb, cfg, hasT)
@@ -298,9 +311,73 @@ local function _bldB(txt, pos, sz, cb, cfg, hasT)
     return b
 end
 
+local function _bldS(txt, pos, min, max, start, cb)
+    local c = Instance.new("Frame", _Ct)
+    c.Size = UDim2.new(1, 0, 0, 45)
+    c.Position = pos
+    c.BackgroundTransparency = 1
+
+    local l = Instance.new("TextLabel", c)
+    l.Size = UDim2.new(1, 0, 0, 20)
+    l.Text = txt .. ": " .. math.floor(start)
+    l.TextColor3 = Color3.new(1,1,1)
+    l.Font = Enum.Font.Code
+    l.TextSize = 11
+    l.BackgroundTransparency = 1
+    l.TextXAlignment = Enum.TextXAlignment.Left
+
+    local b = Instance.new("Frame", c)
+    b.Size = UDim2.new(1, 0, 0, 8)
+    b.Position = UDim2.new(0, 0, 0, 25)
+    b.BackgroundColor3 = Color3.fromRGB(30, 32, 38)
+    _rnd(b, 4)
+
+    local f = Instance.new("Frame", b)
+    f.Size = UDim2.new((start - min)/(max - min), 0, 1, 0)
+    f.BackgroundColor3 = Color3.new(1,1,1)
+    _rnd(f, 4)
+    local g = Instance.new("UIGradient", f)
+    g.Color = _S._V._gr
+
+    local k = Instance.new("Frame", f)
+    k.AnchorPoint = Vector2.new(0.5, 0.5)
+    k.Size = UDim2.new(0, 14, 0, 14)
+    k.Position = UDim2.new(1, 0, 0.5, 0)
+    k.BackgroundColor3 = Color3.new(1, 1, 1)
+    _rnd(k, 10)
+
+    local active = false
+    local function upd()
+        local mX = _g3:GetMouseLocation().X
+        local p = math.clamp((mX - b.AbsolutePosition.X) / b.AbsoluteSize.X, 0, 1)
+        f.Size = UDim2.new(p, 0, 1, 0)
+        local v = min + (p * (max - min))
+        l.Text = txt .. ": " .. math.floor(v)
+        cb(v)
+    end
+
+    b.InputBegan:Connect(function(i)
+        if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+            active = true
+            _S._drS = true
+            upd()
+        end
+    end)
+
+    _g3.InputEnded:Connect(function(i)
+        if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+            active = false
+            _S._drS = false
+        end
+    end)
+
+    _g4.RenderStepped:Connect(function() if active then upd() end end)
+end
+
 _bldB("HEAD", UDim2.new(0,0,0,0), nil, function() _S._P = "Head" end)
 _bldB("TORSO", UDim2.new(0.34,0,0,0), nil, function() _S._P = "UpperTorso" end)
 _bldB("LEGS", UDim2.new(0.68,0,0,0), nil, function() _S._P = "LeftLowerLeg" end)
+
 _bldB("SELECT ALL", UDim2.new(0,0,0,36), UDim2.new(0.48,0,0,30), function() for _,p in pairs(_g1:GetPlayers()) do _tgl(p, true) end end)
 _bldB("DESELECT ALL", UDim2.new(0.52,0,0,36), UDim2.new(0.48,0,0,30), function() _clrAll() end)
 
@@ -316,10 +393,9 @@ _bldB("TRACERS", UDim2.new(0,0,0,180), UDim2.new(1,0,0,30), function(b) _S._Tr =
 _bldB("FOV CIRCLE", UDim2.new(0,0,0,216), UDim2.new(1,0,0,30), function(b) _S._Fv = not _S._Fv b.BackgroundColor3 = _S._Fv and _S._V._s or _S._V._u end, _S._C_Fv, false)
 _bldB("WALL CHECK", UDim2.new(0,0,0,252), UDim2.new(1,0,0,30), function(b) _S._W = not _S._W b.BackgroundColor3 = _S._W and _S._V._s or _S._V._u end)
 
-local _SpB = _bldB("LOCK SPEED: 100%", UDim2.new(0,0,0,288), UDim2.new(1,0,0,30), function(b)
-    _S._Sp = (_S._Sp <= 0.2) and 1 or _S._Sp - 0.2
-    b.Text = "LOCK SPEED: " .. math.floor(_S._Sp * 100) .. "%"
-end)
+_bldS("GAME FOV", UDim2.new(0,0,0,295), 30, 120, _c0.FieldOfView, function(v) _c0.FieldOfView = v end)
+_bldS("LOCK SPEED", UDim2.new(0,0,0,345), 0, 100, 100, function(v) _S._Sp = v/100 end)
+_bldS("FOV RADIUS", UDim2.new(0,0,0,395), 10, 800, 150, function(v) _S._Fr = v end)
 
 local function _getCol(cfg, p)
     if cfg.Mode == "Rainbow" then return Color3.fromHSV(tick() % 5 / 5, 1, 1) end
@@ -331,7 +407,7 @@ local function _gnr()
     local n, d = nil, math.huge
     for p, v in pairs(_S._L) do
         if v and p ~= _p0 and p.Character and p.Character:FindFirstChild("Humanoid") and p.Character.Humanoid.Health > 0 then
-            local r = p.Character:FindFirstChild("HumanoidRootPart")
+            local r = p.Character:FindFirstChild(_S._P)
             if r and _vChk(p.Character) then
                 local sP, onS = _c0:WorldToViewportPoint(r.Position)
                 local dist = (Vector2.new(sP.X, sP.Y) - Vector2.new(_c0.ViewportSize.X/2, _c0.ViewportSize.Y/2)).Magnitude
@@ -346,15 +422,23 @@ local function _gnr()
 end
 
 _g4.RenderStepped:Connect(function()
+    if _drM then
+        local mPos = _g3:GetMouseLocation()
+        _M.Position = UDim2.new(0, mPos.X - _mOff.X, 0, mPos.Y - _mOff.Y)
+    end
+
     if _S._A then local n = _gnr() if n then _S._T = n end end
     if _S._T and (_S._T.Character == nil or (_S._T.Character:FindFirstChild("Humanoid") and _S._T.Character.Humanoid.Health <= 0)) then _S._T = nil end
     if _g3:IsMouseButtonPressed(_S._K1) and _S._T and _S._T.Character then
         local p = _S._T.Character:FindFirstChild(_S._P)
         if p then _c0.CFrame = _c0.CFrame:Lerp(CFrame.lookAt(_c0.CFrame.Position, p.Position), _S._Sp) end
     end
+    
     _fO.Visible = _S._Fv
+    _fO.Radius = _S._Fr
     _fO.Position = Vector2.new(_c0.ViewportSize.X/2, _c0.ViewportSize.Y/2)
     _fO.Color = _getCol(_S._C_Fv)
+
     for _, p in pairs(_g1:GetPlayers()) do
         if p == _p0 then continue end
         local c = p.Character
@@ -380,22 +464,14 @@ _g4.RenderStepped:Connect(function()
     end
 end)
 
-_p0:GetPropertyChangedSignal("Team"):Connect(function()
-    _updOpponents()
-    _rfsh()
-end)
-
+_p0:GetPropertyChangedSignal("Team"):Connect(function() _updOpponents() _rfsh() end)
 _g1.PlayerAdded:Connect(_rfsh)
-_g1.PlayerRemoving:Connect(function(p)
-    if _tL[p] then _tL[p]:Remove() _tL[p] = nil end
-    _S._L[p] = nil
-    _rfsh()
-end)
+_g1.PlayerRemoving:Connect(function(p) if _tL[p] then _tL[p]:Remove() _tL[p] = nil end _S._L[p] = nil _rfsh() end)
 
 _mB.MouseButton1Click:Connect(function()
     _S._op = not _S._op
     _mB.Text = _S._op and "-" or "+"
-    _ts:Create(_M, TweenInfo.new(0.3, Enum.EasingStyle.Quart), {Size = _S._op and UDim2.new(0, 380, 0, 700) or UDim2.new(0, 380, 0, 50)}):Play()
+    _ts:Create(_M, TweenInfo.new(0.3, Enum.EasingStyle.Quart), {Size = _S._op and UDim2.new(0, 380, 0, 750) or UDim2.new(0, 380, 0, 50)}):Play()
 end)
 
 _rfsh()
