@@ -41,6 +41,15 @@ local _S = {
     }
 }
 
+
+local function _addS(obj)
+    local s = Instance.new("UIStroke")
+    s.Thickness = 1
+    s.Color = Color3.new(0,0,0)
+    s.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
+    s.Parent = obj
+end
+
 local function _serC(c) return {c.R, c.G, c.B} end
 local function _desC(t) return Color3.new(t[1], t[2], t[3]) end
 
@@ -110,6 +119,7 @@ _mB_L.TextSize = 14
 _mB_L.AutoButtonColor = false
 _mB_L.Visible = _g3.TouchEnabled
 _rnd(_mB_L, 40)
+_addS(_mB_L)
 
 local _drM = false
 local _mOff = Vector2.new(0,0)
@@ -167,6 +177,7 @@ _CTl.TextColor3 = Color3.new(1, 1, 1)
 _CTl.Font = Enum.Font.Code
 _CTl.TextSize = 14
 _CTl.ZIndex = 101
+_addS(_CTl)
 
 local _CW = Instance.new("ImageLabel", _CP)
 _CW.Size = UDim2.new(0, 150, 0, 150)
@@ -185,6 +196,7 @@ _R_In.Font = Enum.Font.Code
 _R_In.ClearTextOnFocus = false
 _R_In.ZIndex = 101
 _rnd(_R_In, 4)
+_addS(_R_In)
 
 local _G_In = _R_In:Clone()
 _G_In.Parent = _CP
@@ -209,6 +221,7 @@ local function _mBtn(txt, pos, col, cb)
     b.TextSize = 10
     b.ZIndex = 101
     _rnd(b, 5)
+    _addS(b)
     b.MouseButton1Click:Connect(cb)
     return b
 end
@@ -246,6 +259,7 @@ _Tl.TextColor3 = Color3.new(1, 1, 1)
 _Tl.Font = Enum.Font.Code
 _Tl.TextSize = 18
 _Tl.TextXAlignment = Enum.TextXAlignment.Left
+_addS(_Tl)
 
 local _mB = Instance.new("TextButton", _H)
 _mB.Size = UDim2.new(0, 35, 0, 35)
@@ -254,6 +268,7 @@ _mB.BackgroundColor3 = _S._V._ac
 _mB.Text = "-"
 _mB.TextColor3 = Color3.new(1, 1, 1)
 _rnd(_mB, 8)
+_addS(_mB)
 
 local _Cn = Instance.new("Frame", _M)
 _Cn.Size = UDim2.new(1, 0, 1, -50)
@@ -294,15 +309,12 @@ local function _tgl(p, v)
 end
 
 local function _clrAll()
-    for _,p in pairs(_g1:GetPlayers()) do _tgl(p, false) end
+    for _,p in pairs(_g1:GetPlayers()) do _S._L[p] = false end
 end
 
 local function _updOpponents()
-    if not _S._OpM then return end
     for _, p in pairs(_g1:GetPlayers()) do
-        if p ~= _p0 then
-            _tgl(p, p.Team ~= _p0.Team)
-        end
+        if p ~= _p0 and p.Team ~= _p0.Team then _S._L[p] = true end
     end
 end
 
@@ -315,6 +327,7 @@ local function _rfsh()
         b.TextColor3 = Color3.new(1, 1, 1)
         b.Font = Enum.Font.Code
         _rnd(b, 5)
+        _addS(b)
         local plrs = t:GetPlayers()
         local active = #plrs > 0
         for _,p in pairs(plrs) do if not _S._L[p] then active = false break end end
@@ -339,6 +352,7 @@ local function _rfsh()
             b.TextXAlignment = Enum.TextXAlignment.Left
             b.BackgroundColor3 = _S._L[p] and _S._V._s or _S._V._u
             _rnd(b, 5)
+            _addS(b)
             b.MouseButton1Click:Connect(function() _tgl(p) _rfsh() end)
         end
     end
@@ -366,6 +380,7 @@ local function _bldB(txt, pos, sz, cb, cfg, hasT, startS)
     b.Font = Enum.Font.Code
     b.TextSize = 10
     _rnd(b, 6)
+    _addS(b)
     b.MouseButton1Click:Connect(function() cb(b) _rfsh() _save() end)
     if cfg then
         local eb = Instance.new("TextButton", b)
@@ -375,6 +390,7 @@ local function _bldB(txt, pos, sz, cb, cfg, hasT, startS)
         eb.Text = "E"
         eb.TextColor3 = Color3.new(1, 1, 1)
         _rnd(eb, 4)
+        _addS(eb)
         eb.MouseButton1Click:Connect(function()
             _cur_cfg = cfg
             _tBtn.Visible = hasT
@@ -394,6 +410,7 @@ local function _bldS(txt, pos, min, max, start, cb)
     c.BackgroundTransparency = 1
     local l = Instance.new("TextLabel", c)
     l.Size = UDim2.new(1, 0, 0, 20); l.Text = txt .. ": " .. math.floor(start); l.TextColor3 = Color3.new(1,1,1); l.Font = Enum.Font.Code; l.TextSize = 11; l.BackgroundTransparency = 1; l.TextXAlignment = Enum.TextXAlignment.Left
+    _addS(l)
     local b = Instance.new("Frame", c); b.Size = UDim2.new(1, 0, 0, 8); b.Position = UDim2.new(0, 0, 0, 25); b.BackgroundColor3 = Color3.fromRGB(30, 32, 38); _rnd(b, 4)
     local f = Instance.new("Frame", b); f.Size = UDim2.new((start - min)/(max - min), 0, 1, 0); f.BackgroundColor3 = Color3.new(1,1,1); _rnd(f, 4)
     local g = Instance.new("UIGradient", f); g.Color = _S._V._gr
@@ -419,9 +436,10 @@ _BPB["Head"] = _bldB("HEAD", UDim2.new(0,0,0,0), nil, function() _S._P = "Head" 
 _BPB["UpperTorso"] = _bldB("TORSO", UDim2.new(0.34,0,0,0), nil, function() _S._P = "UpperTorso" _updBP() end, nil, false, _S._P == "UpperTorso")
 _BPB["LeftLowerLeg"] = _bldB("LEGS", UDim2.new(0.68,0,0,0), nil, function() _S._P = "LeftLowerLeg" _updBP() end, nil, false, _S._P == "LeftLowerLeg")
 
-_bldB("SELECT ALL", UDim2.new(0,0,0,36), UDim2.new(0.48,0,0,30), function() for _,p in pairs(_g1:GetPlayers()) do _tgl(p, true) end _rfsh() end, nil, false, false)
-_bldB("DESELECT ALL", UDim2.new(0.52,0,0,36), UDim2.new(0.48,0,0,30), function() _clrAll() _rfsh() end, nil, false, false)
-_bldB("OPPOSING TEAM", UDim2.new(0,0,0,72), UDim2.new(1,0,0,30), function(b) _S._OpM = not _S._OpM; b.BackgroundColor3 = _S._OpM and _S._V._s or _S._V._u; _updOpponents() _rfsh() end, nil, false, _S._OpM)
+_bldB("SELECT ALL", UDim2.new(0,0,0,36), UDim2.new(0.48,0,0,30), function() for _,p in pairs(_g1:GetPlayers()) do _tgl(p, true) end _rfsh() end)
+_bldB("DESELECT ALL", UDim2.new(0.52,0,0,36), UDim2.new(0.48,0,0,30), function() _clrAll() _rfsh() end)
+_bldB("OPPOSING TEAM", UDim2.new(0,0,0,72), UDim2.new(1,0,0,30), function() _updOpponents() _rfsh() end)
+
 _bldB("AUTO LOCK", UDim2.new(0,0,0,108), UDim2.new(1,0,0,30), function(b) _S._A = not _S._A; b.BackgroundColor3 = _S._A and _S._V._s or _S._V._u end, nil, false, _S._A)
 _bldB("ESP / CHAMS", UDim2.new(0,0,0,144), UDim2.new(1,0,0,30), function(b) _S._E = not _S._E; b.BackgroundColor3 = _S._E and _S._V._s or _S._V._u end, _S._C_Es, true, _S._E)
 _bldB("TRACERS", UDim2.new(0,0,0,180), UDim2.new(1,0,0,30), function(b) _S._Tr = not _S._Tr; b.BackgroundColor3 = _S._Tr and _S._V._s or _S._V._u end, _S._C_Tr, true, _S._Tr)
@@ -482,7 +500,7 @@ _g4.RenderStepped:Connect(function()
     end
 end)
 
-_p0:GetPropertyChangedSignal("Team"):Connect(function() _updOpponents() _rfsh() end)
+_p0:GetPropertyChangedSignal("Team"):Connect(function() _rfsh() end)
 _g1.PlayerAdded:Connect(_rfsh)
 _g1.PlayerRemoving:Connect(function(p) if _tL[p] then _tL[p]:Remove() _tL[p] = nil end _S._L[p] = nil _rfsh() end)
 
@@ -492,5 +510,4 @@ _mB.MouseButton1Click:Connect(function()
 end)
 
 _rfsh()
-_updOpponents()
 _updBP()
