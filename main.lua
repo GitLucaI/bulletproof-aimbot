@@ -406,7 +406,11 @@ local function _bldS(txt, pos, min, max, start, cb)
         l.Text = txt .. ": " .. math.floor(v)
         cb(v)
     end
-    b.InputBegan:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch) then active = true; _S._drS = true; upd() end end)
+    b.InputBegan:Connect(function(i) 
+        if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then 
+            active = true; _S._drS = true; upd() 
+        end 
+    end)
     _g3.InputEnded:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then if active then _save() end active = false; _S._drS = false end end)
     _g4.RenderStepped:Connect(function() if active then upd() end end)
 end
@@ -421,7 +425,7 @@ _bldB("OPPOSING TEAM", UDim2.new(0,0,0,72), UDim2.new(1,0,0,30), function(b) _S.
 _bldB("AUTO LOCK", UDim2.new(0,0,0,108), UDim2.new(1,0,0,30), function(b) _S._A = not _S._A; b.BackgroundColor3 = _S._A and _S._V._s or _S._V._u end, nil, false, _S._A)
 _bldB("ESP / CHAMS", UDim2.new(0,0,0,144), UDim2.new(1,0,0,30), function(b) _S._E = not _S._E; b.BackgroundColor3 = _S._E and _S._V._s or _S._V._u end, _S._C_Es, true, _S._E)
 _bldB("TRACERS", UDim2.new(0,0,0,180), UDim2.new(1,0,0,30), function(b) _S._Tr = not _S._Tr; b.BackgroundColor3 = _S._Tr and _S._V._s or _S._V._u end, _S._C_Tr, true, _S._Tr)
-_bldB("FOV CIRCLE", UDim2.new(0,0,0,216), UDim2.new(1,0,0,30), function(b) _S._Fv = not _S._Fv; b.BackgroundColor3 = _S._V._u; if _S._Fv then b.BackgroundColor3 = _S._V._s end end, _S._C_Fv, false, _S._Fv)
+_bldB("FOV CIRCLE", UDim2.new(0,0,0,216), UDim2.new(1,0,0,30), function(b) _S._Fv = not _S._Fv; b.BackgroundColor3 = _S._Fv and _S._V._s or _S._V._u end, _S._C_Fv, false, _S._Fv)
 _bldB("WALL CHECK", UDim2.new(0,0,0,252), UDim2.new(1,0,0,30), function(b) _S._W = not _S._W; b.BackgroundColor3 = _S._W and _S._V._s or _S._V._u end, nil, false, _S._W)
 _bldB("UNLOCK POSITION SETTING", UDim2.new(0,0,0,288), UDim2.new(1,0,0,30), function(b) _S._ULM = not _S._ULM; b.BackgroundColor3 = _S._ULM and _S._V._s or _S._V._u end, nil, false, _S._ULM)
 
