@@ -34,17 +34,16 @@ local _S = {
     _V = {
         _m = Color3.fromRGB(15, 17, 20),
         _h = Color3.fromRGB(25, 27, 32),
-        _s = Color3.fromRGB(0, 255, 150),
-        _u = Color3.fromRGB(255, 70, 70),
+        _s = Color3.fromRGB(0, 180, 100),
+        _u = Color3.fromRGB(180, 50, 50),
         _ac = Color3.fromRGB(35, 38, 45),
-        _gr = ColorSequence.new(Color3.fromRGB(0, 255, 150), Color3.fromRGB(0, 180, 255))
+        _gr = ColorSequence.new(Color3.fromRGB(0, 180, 100), Color3.fromRGB(0, 120, 200))
     }
 }
 
-
 local function _addS(obj)
     local s = Instance.new("UIStroke")
-    s.Thickness = 1
+    s.Thickness = 1.5
     s.Color = Color3.new(0,0,0)
     s.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
     s.Parent = obj
@@ -109,16 +108,16 @@ _M.ClipsDescendants = true
 _rnd(_M, 12)
 
 local _mB_L = Instance.new("TextButton", _G)
-_mB_L.Size = UDim2.new(0, 75, 0, 75)
+_mB_L.Size = UDim2.new(0, 85, 0, 85)
 _mB_L.Position = UDim2.new(_S._MLP[1], _S._MLP[2], _S._MLP[3], _S._MLP[4])
 _mB_L.BackgroundColor3 = _S._V._h
 _mB_L.Text = "LOCK"
 _mB_L.TextColor3 = Color3.new(1,1,1)
 _mB_L.Font = Enum.Font.Code
-_mB_L.TextSize = 14
+_mB_L.TextSize = 18
 _mB_L.AutoButtonColor = false
 _mB_L.Visible = _g3.TouchEnabled
-_rnd(_mB_L, 40)
+_rnd(_mB_L, 45)
 _addS(_mB_L)
 
 local _drM = false
@@ -175,7 +174,7 @@ _CTl.BackgroundTransparency = 1
 _CTl.Text = "COLOR CONFIGURATOR"
 _CTl.TextColor3 = Color3.new(1, 1, 1)
 _CTl.Font = Enum.Font.Code
-_CTl.TextSize = 14
+_CTl.TextSize = 16
 _CTl.ZIndex = 101
 _addS(_CTl)
 
@@ -195,6 +194,7 @@ _R_In.TextColor3 = Color3.new(1,0,0)
 _R_In.Font = Enum.Font.Code
 _R_In.ClearTextOnFocus = false
 _R_In.ZIndex = 101
+_R_In.TextSize = 14
 _rnd(_R_In, 4)
 _addS(_R_In)
 
@@ -218,7 +218,7 @@ local function _mBtn(txt, pos, col, cb)
     b.BackgroundColor3 = col
     b.TextColor3 = Color3.new(1, 1, 1)
     b.Font = Enum.Font.Code
-    b.TextSize = 10
+    b.TextSize = 12
     b.ZIndex = 101
     _rnd(b, 5)
     _addS(b)
@@ -230,7 +230,7 @@ _mBtn("RAINBOW", UDim2.new(0.04, 0, 0, 270), _S._V._ac, function() if _cur_cfg t
 _mBtn("STATIC", UDim2.new(0.36, 0, 0, 270), _S._V._ac, function() if _cur_cfg then _cur_cfg.Mode = "Static" _save() end end)
 local _tBtn = _mBtn("TEAM", UDim2.new(0.68, 0, 0, 270), _S._V._ac, function() if _cur_cfg then _cur_cfg.Mode = "Team" _save() end end)
 
-local _btn_Conf = _mBtn("CONFIRM", UDim2.new(0.04, 0, 0, 330), Color3.fromRGB(0, 150, 0), function()
+local _btn_Conf = _mBtn("CONFIRM", UDim2.new(0.04, 0, 0, 330), Color3.fromRGB(0, 120, 0), function()
     if _cur_cfg then
         local r, g, b = tonumber(_R_In.Text) or 255, tonumber(_G_In.Text) or 255, tonumber(_B_In.Text) or 255
         _cur_cfg.Color = Color3.fromRGB(r, g, b)
@@ -239,11 +239,13 @@ local _btn_Conf = _mBtn("CONFIRM", UDim2.new(0.04, 0, 0, 330), Color3.fromRGB(0,
     _CP.Visible = false
 end)
 _btn_Conf.Size = UDim2.new(0.44, 0, 0, 40)
+_btn_Conf.TextSize = 16
 
-local _btn_Canc = _mBtn("CANCEL", UDim2.new(0.52, 0, 0, 330), Color3.fromRGB(150, 0, 0), function()
+local _btn_Canc = _mBtn("CANCEL", UDim2.new(0.52, 0, 0, 330), Color3.fromRGB(120, 0, 0), function()
     _CP.Visible = false
 end)
 _btn_Canc.Size = UDim2.new(0.44, 0, 0, 40)
+_btn_Canc.TextSize = 16
 
 local _H = Instance.new("Frame", _M)
 _H.Size = UDim2.new(1, 0, 0, 50)
@@ -257,7 +259,7 @@ _Tl.BackgroundTransparency = 1
 _Tl.Text = "BULLETPROOF V1"
 _Tl.TextColor3 = Color3.new(1, 1, 1)
 _Tl.Font = Enum.Font.Code
-_Tl.TextSize = 18
+_Tl.TextSize = 22
 _Tl.TextXAlignment = Enum.TextXAlignment.Left
 _addS(_Tl)
 
@@ -267,6 +269,7 @@ _mB.Position = UDim2.new(1, -45, 0.5, -17)
 _mB.BackgroundColor3 = _S._V._ac
 _mB.Text = "-"
 _mB.TextColor3 = Color3.new(1, 1, 1)
+_mB.TextSize = 20
 _rnd(_mB, 8)
 _addS(_mB)
 
@@ -322,10 +325,11 @@ local function _rfsh()
     for _, x in pairs(_Sf:GetChildren()) do if x:IsA("TextButton") then x:Destroy() end end
     for _, t in pairs(_g2:GetTeams()) do
         local b = Instance.new("TextButton", _Sf)
-        b.Size = UDim2.new(1, -10, 0, 30)
+        b.Size = UDim2.new(1, -10, 0, 35)
         b.Text = " [TEAM] " .. t.Name:upper()
         b.TextColor3 = Color3.new(1, 1, 1)
         b.Font = Enum.Font.Code
+        b.TextSize = 14
         _rnd(b, 5)
         _addS(b)
         local plrs = t:GetPlayers()
@@ -345,10 +349,11 @@ local function _rfsh()
         if p ~= _p0 then
             local b = Instance.new("TextButton", _Sf)
             b.Name = p.Name
-            b.Size = UDim2.new(1, -10, 0, 30)
+            b.Size = UDim2.new(1, -10, 0, 35)
             b.Text = " " .. p.Name
             b.TextColor3 = Color3.new(1, 1, 1)
             b.Font = Enum.Font.Code
+            b.TextSize = 14
             b.TextXAlignment = Enum.TextXAlignment.Left
             b.BackgroundColor3 = _S._L[p] and _S._V._s or _S._V._u
             _rnd(b, 5)
@@ -364,13 +369,15 @@ _Ct.Position = UDim2.new(0, 10, 0, 160)
 _Ct.BackgroundTransparency = 1
 
 local _BPB = {}
+local _MB = {}
+
 local function _updBP()
     for n, b in pairs(_BPB) do
         b.BackgroundColor3 = (_S._P == n) and _S._V._s or _S._V._u
     end
 end
 
-local function _bldB(txt, pos, sz, cb, cfg, hasT, startS)
+local function _bldB(txt, pos, sz, cb, cfg, hasT, startS, isM)
     local b = Instance.new("TextButton", _Ct)
     b.Size = sz or UDim2.new(0.31, 0, 0, 30)
     b.Position = pos
@@ -378,10 +385,20 @@ local function _bldB(txt, pos, sz, cb, cfg, hasT, startS)
     b.BackgroundColor3 = startS and _S._V._s or _S._V._u
     b.TextColor3 = Color3.new(1, 1, 1)
     b.Font = Enum.Font.Code
-    b.TextSize = 10
+    b.TextSize = 13
     _rnd(b, 6)
     _addS(b)
-    b.MouseButton1Click:Connect(function() cb(b) _rfsh() _save() end)
+    b.MouseButton1Click:Connect(function()
+        if isM then
+            for _, btn in pairs(_MB) do btn.BackgroundColor3 = _S._V._u end
+            b.BackgroundColor3 = _S._V._s
+            task.delay(0.1, function() b.BackgroundColor3 = _S._V._u end)
+        end
+        cb(b)
+        _rfsh()
+        _save()
+    end)
+    if isM then table.insert(_MB, b) end
     if cfg then
         local eb = Instance.new("TextButton", b)
         eb.Size = UDim2.new(0, 24, 0, 24)
@@ -409,7 +426,7 @@ local function _bldS(txt, pos, min, max, start, cb)
     c.Position = pos
     c.BackgroundTransparency = 1
     local l = Instance.new("TextLabel", c)
-    l.Size = UDim2.new(1, 0, 0, 20); l.Text = txt .. ": " .. math.floor(start); l.TextColor3 = Color3.new(1,1,1); l.Font = Enum.Font.Code; l.TextSize = 11; l.BackgroundTransparency = 1; l.TextXAlignment = Enum.TextXAlignment.Left
+    l.Size = UDim2.new(1, 0, 0, 20); l.Text = txt .. ": " .. math.floor(start); l.TextColor3 = Color3.new(1,1,1); l.Font = Enum.Font.Code; l.TextSize = 14; l.BackgroundTransparency = 1; l.TextXAlignment = Enum.TextXAlignment.Left
     _addS(l)
     local b = Instance.new("Frame", c); b.Size = UDim2.new(1, 0, 0, 8); b.Position = UDim2.new(0, 0, 0, 25); b.BackgroundColor3 = Color3.fromRGB(30, 32, 38); _rnd(b, 4)
     local f = Instance.new("Frame", b); f.Size = UDim2.new((start - min)/(max - min), 0, 1, 0); f.BackgroundColor3 = Color3.new(1,1,1); _rnd(f, 4)
@@ -432,20 +449,20 @@ local function _bldS(txt, pos, min, max, start, cb)
     _g4.RenderStepped:Connect(function() if active then upd() end end)
 end
 
-_BPB["Head"] = _bldB("HEAD", UDim2.new(0,0,0,0), nil, function() _S._P = "Head" _updBP() end, nil, false, _S._P == "Head")
-_BPB["UpperTorso"] = _bldB("TORSO", UDim2.new(0.34,0,0,0), nil, function() _S._P = "UpperTorso" _updBP() end, nil, false, _S._P == "UpperTorso")
-_BPB["LeftLowerLeg"] = _bldB("LEGS", UDim2.new(0.68,0,0,0), nil, function() _S._P = "LeftLowerLeg" _updBP() end, nil, false, _S._P == "LeftLowerLeg")
+_BPB["Head"] = _bldB("HEAD", UDim2.new(0,0,0,0), nil, function() _S._P = "Head" _updBP() end, nil, false, _S._P == "Head", false)
+_BPB["UpperTorso"] = _bldB("TORSO", UDim2.new(0.34,0,0,0), nil, function() _S._P = "UpperTorso" _updBP() end, nil, false, _S._P == "UpperTorso", false)
+_BPB["LeftLowerLeg"] = _bldB("LEGS", UDim2.new(0.68,0,0,0), nil, function() _S._P = "LeftLowerLeg" _updBP() end, nil, false, _S._P == "LeftLowerLeg", false)
 
-_bldB("SELECT ALL", UDim2.new(0,0,0,36), UDim2.new(0.48,0,0,30), function() for _,p in pairs(_g1:GetPlayers()) do _tgl(p, true) end _rfsh() end)
-_bldB("DESELECT ALL", UDim2.new(0.52,0,0,36), UDim2.new(0.48,0,0,30), function() _clrAll() _rfsh() end)
-_bldB("OPPOSING TEAM", UDim2.new(0,0,0,72), UDim2.new(1,0,0,30), function() _updOpponents() _rfsh() end)
+_bldB("SELECT ALL", UDim2.new(0,0,0,36), UDim2.new(0.48,0,0,30), function() for _,p in pairs(_g1:GetPlayers()) do _tgl(p, true) end end, nil, false, false, true)
+_bldB("DESELECT ALL", UDim2.new(0.52,0,0,36), UDim2.new(0.48,0,0,30), function() _clrAll() end, nil, false, false, true)
+_bldB("OPPOSING TEAM", UDim2.new(0,0,0,72), UDim2.new(1,0,0,30), function() _updOpponents() end, nil, false, false, true)
 
-_bldB("AUTO LOCK", UDim2.new(0,0,0,108), UDim2.new(1,0,0,30), function(b) _S._A = not _S._A; b.BackgroundColor3 = _S._A and _S._V._s or _S._V._u end, nil, false, _S._A)
-_bldB("ESP / CHAMS", UDim2.new(0,0,0,144), UDim2.new(1,0,0,30), function(b) _S._E = not _S._E; b.BackgroundColor3 = _S._E and _S._V._s or _S._V._u end, _S._C_Es, true, _S._E)
-_bldB("TRACERS", UDim2.new(0,0,0,180), UDim2.new(1,0,0,30), function(b) _S._Tr = not _S._Tr; b.BackgroundColor3 = _S._Tr and _S._V._s or _S._V._u end, _S._C_Tr, true, _S._Tr)
-_bldB("FOV CIRCLE", UDim2.new(0,0,0,216), UDim2.new(1,0,0,30), function(b) _S._Fv = not _S._Fv; b.BackgroundColor3 = _S._Fv and _S._V._s or _S._V._u end, _S._C_Fv, false, _S._Fv)
-_bldB("WALL CHECK", UDim2.new(0,0,0,252), UDim2.new(1,0,0,30), function(b) _S._W = not _S._W; b.BackgroundColor3 = _S._W and _S._V._s or _S._V._u end, nil, false, _S._W)
-_bldB("UNLOCK POSITION SETTING", UDim2.new(0,0,0,288), UDim2.new(1,0,0,30), function(b) _S._ULM = not _S._ULM; b.BackgroundColor3 = _S._ULM and _S._V._s or _S._V._u end, nil, false, _S._ULM)
+_bldB("AUTO LOCK", UDim2.new(0,0,0,108), UDim2.new(1,0,0,30), function(b) _S._A = not _S._A; b.BackgroundColor3 = _S._A and _S._V._s or _S._V._u end, nil, false, _S._A, false)
+_bldB("ESP / CHAMS", UDim2.new(0,0,0,144), UDim2.new(1,0,0,30), function(b) _S._E = not _S._E; b.BackgroundColor3 = _S._E and _S._V._s or _S._V._u end, _S._C_Es, true, _S._E, false)
+_bldB("TRACERS", UDim2.new(0,0,0,180), UDim2.new(1,0,0,30), function(b) _S._Tr = not _S._Tr; b.BackgroundColor3 = _S._Tr and _S._V._s or _S._V._u end, _S._C_Tr, true, _S._Tr, false)
+_bldB("FOV CIRCLE", UDim2.new(0,0,0,216), UDim2.new(1,0,0,30), function(b) _S._Fv = not _S._Fv; b.BackgroundColor3 = _S._Fv and _S._V._s or _S._V._u end, _S._C_Fv, false, _S._Fv, false)
+_bldB("WALL CHECK", UDim2.new(0,0,0,252), UDim2.new(1,0,0,30), function(b) _S._W = not _S._W; b.BackgroundColor3 = _S._W and _S._V._s or _S._V._u end, nil, false, _S._W, false)
+_bldB("UNLOCK POSITION SETTING", UDim2.new(0,0,0,288), UDim2.new(1,0,0,30), function(b) _S._ULM = not _S._ULM; b.BackgroundColor3 = _S._ULM and _S._V._s or _S._V._u end, nil, false, _S._ULM, false)
 
 _bldS("GAME FOV", UDim2.new(0,0,0,335), 30, 120, _c0.FieldOfView, function(v) _c0.FieldOfView = v end)
 _bldS("LOCK SPEED", UDim2.new(0,0,0,385), 0, 100, _S._Sp*100, function(v) _S._Sp = v/100 end)
