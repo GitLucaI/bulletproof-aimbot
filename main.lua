@@ -27,6 +27,9 @@ local _S = {
     _drS = false,
     _isML = false,
     _ULM = false,
+    _V_Tgl = true,
+    _SAll = false,
+    _OpT = false,
     _MLP = {0.8, 0, 0.5, 0},
     _C_Es = {Mode = "Rainbow", Color = Color3.new(1,1,1)},
     _C_Tr = {Mode = "Team", Color = Color3.new(1,1,1)},
@@ -56,6 +59,7 @@ local function _save()
     local d = {
         A = _S._A, E = _S._E, Tr = _S._Tr, Fv = _S._Fv, W = _S._W,
         Fr = _S._Fr, Sp = _S._Sp, P = _S._P, MLP = _S._MLP, OpM = _S._OpM,
+        VT = _S._V_Tgl, SA = _S._SAll, OT = _S._OpT,
         CE = {M = _S._C_Es.Mode, C = _serC(_S._C_Es.Color)},
         CT = {M = _S._C_Tr.Mode, C = _serC(_S._C_Tr.Color)},
         CF = {M = _S._C_Fv.Mode, C = _serC(_S._C_Fv.Color)}
@@ -69,6 +73,9 @@ local function _load()
         if s then
             _S._A = d.A; _S._E = d.E; _S._Tr = d.Tr; _S._Fv = d.Fv; _S._W = d.W
             _S._Fr = d.Fr; _S._Sp = d.Sp; _S._P = d.P; _S._MLP = d.MLP; _S._OpM = d.OpM or false
+            if d.VT ~= nil then _S._V_Tgl = d.VT end
+            if d.SA ~= nil then _S._SAll = d.SA end
+            if d.OT ~= nil then _S._OpT = d.OT end
             _S._C_Es.Mode = d.CE.M; _S._C_Es.Color = _desC(d.CE.C)
             _S._C_Tr.Mode = d.CT.M; _S._C_Tr.Color = _desC(d.CT.C)
             _S._C_Fv.Mode = d.CF.M; _S._C_Fv.Color = _desC(d.CF.C)
@@ -317,7 +324,20 @@ end
 
 local function _updOpponents()
     for _, p in pairs(_g1:GetPlayers()) do
-        if p ~= _p0 and p.Team ~= _p0.Team then _S._L[p] = true end
+        if p ~= _p0 and p.Team ~= _p0.Team then _S._L[p] = true else _S._L[p] = false end
+    end
+end
+
+local function _applyPlayerRules(p)
+    if p == _p0 then return end
+    if _S._SAll then
+        _S._L[p] = true
+    elseif _S._OpT then
+        if p.Team ~= _p0.Team then
+            _S._L[p] = true
+        else
+            _S._L[p] = false
+        end
     end
 end
 
@@ -364,7 +384,7 @@ local function _rfsh()
 end
 
 local _Ct = Instance.new("Frame", _Cn)
-_Ct.Size = UDim2.new(1, -20, 0, 500)
+_Ct.Size = UDim2.new(1, -20, 0, 550)
 _Ct.Position = UDim2.new(0, 10, 0, 160)
 _Ct.BackgroundTransparency = 1
 
@@ -453,9 +473,9 @@ _BPB["Head"] = _bldB("HEAD", UDim2.new(0,0,0,0), nil, function() _S._P = "Head" 
 _BPB["UpperTorso"] = _bldB("TORSO", UDim2.new(0.34,0,0,0), nil, function() _S._P = "UpperTorso" _updBP() end, nil, false, _S._P == "UpperTorso", false)
 _BPB["LeftLowerLeg"] = _bldB("LEGS", UDim2.new(0.68,0,0,0), nil, function() _S._P = "LeftLowerLeg" _updBP() end, nil, false, _S._P == "LeftLowerLeg", false)
 
-_bldB("SELECT ALL", UDim2.new(0,0,0,36), UDim2.new(0.48,0,0,30), function() for _,p in pairs(_g1:GetPlayers()) do _tgl(p, true) end end, nil, false, false, true)
-_bldB("DESELECT ALL", UDim2.new(0.52,0,0,36), UDim2.new(0.48,0,0,30), function() _clrAll() end, nil, false, false, true)
-_bldB("OPPOSING TEAM", UDim2.new(0,0,0,72), UDim2.new(1,0,0,30), function() _updOpponents() end, nil, false, false, true)
+_bldB("SELECT ALL", UDim2.new(0,0,0,36), UDim2.new(0.48,0,0,30), function() _S._SAll = true; _S._OpT = false; for _,p in pairs(_g1:GetPlayers()) do _tgl(p, true) end end, nil, false, false, true)
+_bldB("DESELECT ALL", UDim2.new(0.52,0,0,36), UDim2.new(0.48,0,0,30), function() _S._SAll = false; _S._OpT = false; _clrAll() end, nil, false, false, true)
+_bldB("OPPOSING TEAM", UDim2.new(0,0,0,72), UDim2.new(1,0,0,30), function() _S._SAll = false; _S._OpT = true; _updOpponents() end, nil, false, false, true)
 
 _bldB("AUTO LOCK", UDim2.new(0,0,0,108), UDim2.new(1,0,0,30), function(b) _S._A = not _S._A; b.BackgroundColor3 = _S._A and _S._V._s or _S._V._u end, nil, false, _S._A, false)
 _bldB("ESP / CHAMS", UDim2.new(0,0,0,144), UDim2.new(1,0,0,30), function(b) _S._E = not _S._E; b.BackgroundColor3 = _S._E and _S._V._s or _S._V._u end, _S._C_Es, true, _S._E, false)
@@ -464,9 +484,12 @@ _bldB("FOV CIRCLE", UDim2.new(0,0,0,216), UDim2.new(1,0,0,30), function(b) _S._F
 _bldB("WALL CHECK", UDim2.new(0,0,0,252), UDim2.new(1,0,0,30), function(b) _S._W = not _S._W; b.BackgroundColor3 = _S._W and _S._V._s or _S._V._u end, nil, false, _S._W, false)
 _bldB("UNLOCK POSITION SETTING", UDim2.new(0,0,0,288), UDim2.new(1,0,0,30), function(b) _S._ULM = not _S._ULM; b.BackgroundColor3 = _S._ULM and _S._V._s or _S._V._u end, nil, false, _S._ULM, false)
 
-_bldS("GAME FOV", UDim2.new(0,0,0,335), 30, 120, _c0.FieldOfView, function(v) _c0.FieldOfView = v end)
-_bldS("LOCK SPEED", UDim2.new(0,0,0,385), 0, 100, _S._Sp*100, function(v) _S._Sp = v/100 end)
-_bldS("FOV RADIUS", UDim2.new(0,0,0,435), 10, 800, _S._Fr, function(v) _S._Fr = v end)
+local _vB = _bldB("TOGGLE VISUALS [RSHIFT]", UDim2.new(0,0,0,324), UDim2.new(1,0,0,30), function(b) _S._V_Tgl = not _S._V_Tgl; b.BackgroundColor3 = _S._V_Tgl and _S._V._s or _S._V._u end, nil, false, _S._V_Tgl, false)
+_bldB("HIDE GUI [INSERT]", UDim2.new(0,0,0,360), UDim2.new(1,0,0,30), function() _G.Enabled = not _G.Enabled end, nil, false, true, false)
+
+_bldS("GAME FOV", UDim2.new(0,0,0,405), 30, 120, _c0.FieldOfView, function(v) _c0.FieldOfView = v end)
+_bldS("LOCK SPEED", UDim2.new(0,0,0,455), 0, 100, _S._Sp*100, function(v) _S._Sp = v/100 end)
+_bldS("FOV RADIUS", UDim2.new(0,0,0,505), 10, 800, _S._Fr, function(v) _S._Fr = v end)
 
 local function _getCol(cfg, p)
     if cfg.Mode == "Rainbow" then return Color3.fromHSV(tick() % 5 / 5, 1, 1) end
@@ -504,22 +527,48 @@ _g4.RenderStepped:Connect(function()
         local p = _S._T.Character:FindFirstChild(_S._P)
         if p then _c0.CFrame = _c0.CFrame:Lerp(CFrame.lookAt(_c0.CFrame.Position, p.Position), _S._Sp) end
     end
-    _fO.Visible = _S._Fv; _fO.Radius = _S._Fr; _fO.Position = Vector2.new(_c0.ViewportSize.X/2, _c0.ViewportSize.Y/2); _fO.Color = _getCol(_S._C_Fv)
+    _fO.Visible = _S._Fv and _S._V_Tgl; _fO.Radius = _S._Fr; _fO.Position = Vector2.new(_c0.ViewportSize.X/2, _c0.ViewportSize.Y/2); _fO.Color = _getCol(_S._C_Fv)
     for _, p in pairs(_g1:GetPlayers()) do
         if p == _p0 then continue end
         local c = p.Character
         if c and c:FindFirstChild("HumanoidRootPart") then
-            local h = c:FindFirstChild("BPA_H") or Instance.new("Highlight", c); h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop; h.Name = "BPA_H"; h.Enabled = _S._L[p] and _S._E; h.OutlineColor = _getCol(_S._C_Es, p); h.FillTransparency = 1
+            local h = c:FindFirstChild("BPA_H") or Instance.new("Highlight", c); h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop; h.Name = "BPA_H"; h.Enabled = _S._L[p] and _S._E and _S._V_Tgl; h.OutlineColor = _getCol(_S._C_Es, p); h.FillTransparency = 1
             if not _tL[p] then _tL[p] = Drawing.new("Line") end
             local tr = _tL[p]; local sP, onS = _c0:WorldToViewportPoint(c.HumanoidRootPart.Position)
-            if onS and _S._L[p] and _S._Tr then tr.Visible = true; tr.To = Vector2.new(sP.X, sP.Y); tr.From = Vector2.new(_c0.ViewportSize.X/2, _c0.ViewportSize.Y); tr.Color = _getCol(_S._C_Tr, p); tr.Thickness = 1.5 else tr.Visible = false end
+            if onS and _S._L[p] and _S._Tr and _S._V_Tgl then tr.Visible = true; tr.To = Vector2.new(sP.X, sP.Y); tr.From = Vector2.new(_c0.ViewportSize.X/2, _c0.ViewportSize.Y); tr.Color = _getCol(_S._C_Tr, p); tr.Thickness = 1.5 else tr.Visible = false end
         elseif _tL[p] then _tL[p].Visible = false end
     end
 end)
 
-_p0:GetPropertyChangedSignal("Team"):Connect(function() _rfsh() end)
-_g1.PlayerAdded:Connect(_rfsh)
+_g3.InputBegan:Connect(function(i, gPE)
+    if gPE then return end
+    if i.KeyCode == Enum.KeyCode.Insert then
+        _G.Enabled = not _G.Enabled
+    elseif i.KeyCode == Enum.KeyCode.RightShift then
+        _S._V_Tgl = not _S._V_Tgl
+        if _vB then _vB.BackgroundColor3 = _S._V_Tgl and _S._V._s or _S._V._u end
+        _save()
+    end
+end)
+
+local function _trackPlayer(p)
+    if p == _p0 then return end
+    _applyPlayerRules(p)
+    _rfsh()
+    p:GetPropertyChangedSignal("Team"):Connect(function()
+        _applyPlayerRules(p)
+        _rfsh()
+    end)
+end
+
+_g1.PlayerAdded:Connect(_trackPlayer)
+for _, p in pairs(_g1:GetPlayers()) do _trackPlayer(p) end
 _g1.PlayerRemoving:Connect(function(p) if _tL[p] then _tL[p]:Remove() _tL[p] = nil end _S._L[p] = nil _rfsh() end)
+
+_p0:GetPropertyChangedSignal("Team"):Connect(function()
+    for _, p in pairs(_g1:GetPlayers()) do _applyPlayerRules(p) end
+    _rfsh()
+end)
 
 _mB.MouseButton1Click:Connect(function()
     _S._op = not _S._op; _mB.Text = _S._op and "-" or "+"
