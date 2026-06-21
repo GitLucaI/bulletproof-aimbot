@@ -12,7 +12,8 @@ local _S = {
     _L = {},
     _A = false,
     _T = nil,
-    _P = "Head",
+    _P = {Head = true, UpperTorso = false, LeftLowerLeg = false},
+    _CurPart = nil,
     _K1 = Enum.UserInputType.MouseButton2,
     _K2 = Enum.UserInputType.MouseButton3,
     _Sp = 1,
@@ -72,10 +73,16 @@ local function _load()
         local s, d = pcall(function() return _hs:JSONDecode(readfile("BPA_V1_Cfg.json")) end)
         if s then
             _S._A = d.A; _S._E = d.E; _S._Tr = d.Tr; _S._Fv = d.Fv; _S._W = d.W
-            _S._Fr = d.Fr; _S._Sp = d.Sp; _S._P = d.P; _S._MLP = d.MLP; _S._OpM = d.OpM or false
+            _S._Fr = d.Fr; _S._Sp = d.Sp; _S._MLP = d.MLP; _S._OpM = d.OpM or false
             if d.VT ~= nil then _S._V_Tgl = d.VT end
             if d.SA ~= nil then _S._SAll = d.SA end
             if d.OT ~= nil then _S._OpT = d.OT end
+            if type(d.P) == "table" then
+                _S._P = d.P
+            elseif type(d.P) == "string" then
+                _S._P = {Head = false, UpperTorso = false, LeftLowerLeg = false}
+                _S._P[d.P] = true
+            end
             _S._C_Es.Mode = d.CE.M; _S._C_Es.Color = _desC(d.CE.C)
             _S._C_Tr.Mode = d.CT.M; _S._C_Tr.Color = _desC(d.CT.C)
             _S._C_Fv.Mode = d.CF.M; _S._C_Fv.Color = _desC(d.CF.C)
@@ -298,9 +305,9 @@ local _Ly = Instance.new("UIListLayout", _Sf)
 _Ly.Padding = UDim.new(0, 6)
 _Ly.SortOrder = Enum.SortOrder.LayoutOrder
 
-local function _vChk(p)
+local function _vChk(p, partName)
     if not _S._W then return true end
-    local c, rP = _p0.Character, p:FindFirstChild(_S._P)
+    local c, rP = _p0.Character, p:FindFirstChild(partName)
     if not (c and rP) then return false end
     local mP = c:FindFirstChild("Head")
     if not mP then return false end
@@ -393,7 +400,7 @@ local _MB = {}
 
 local function _updBP()
     for n, b in pairs(_BPB) do
-        b.BackgroundColor3 = (_S._P == n) and _S._V._s or _S._V._u
+        b.BackgroundColor3 = _S._P[n] and _S._V._s or _S._V._u
     end
 end
 
@@ -469,9 +476,9 @@ local function _bldS(txt, pos, min, max, start, cb)
     _g4.RenderStepped:Connect(function() if active then upd() end end)
 end
 
-_BPB["Head"] = _bldB("HEAD", UDim2.new(0,0,0,0), nil, function() _S._P = "Head" _updBP() end, nil, false, _S._P == "Head", false)
-_BPB["UpperTorso"] = _bldB("TORSO", UDim2.new(0.34,0,0,0), nil, function() _S._P = "UpperTorso" _updBP() end, nil, false, _S._P == "UpperTorso", false)
-_BPB["LeftLowerLeg"] = _bldB("LEGS", UDim2.new(0.68,0,0,0), nil, function() _S._P = "LeftLowerLeg" _updBP() end, nil, false, _S._P == "LeftLowerLeg", false)
+_BPB["Head"] = _bldB("HEAD", UDim2.new(0,0,0,0), nil, function() _S._P["Head"] = not _S._P["Head"] _updBP() end, nil, false, _S._P["Head"], false)
+_BPB["UpperTorso"] = _bldB("TORSO", UDim2.new(0.34,0,0,0), nil, function() _S._P["UpperTorso"] = not _S._P["UpperTorso"] _updBP() end, nil, false, _S._P["UpperTorso"], false)
+_BPB["LeftLowerLeg"] = _bldB("LEGS", UDim2.new(0.68,0,0,0), nil, function() _S._P["LeftLowerLeg"] = not _S._P["LeftLowerLeg"] _updBP() end, nil, false, _S._P["LeftLowerLeg"], false)
 
 _bldB("SELECT ALL", UDim2.new(0,0,0,36), UDim2.new(0.48,0,0,30), function() _S._SAll = true; _S._OpT = false; for _,p in pairs(_g1:GetPlayers()) do _tgl(p, true) end end, nil, false, false, true)
 _bldB("DESELECT ALL", UDim2.new(0.52,0,0,36), UDim2.new(0.48,0,0,30), function() _S._SAll = false; _S._OpT = false; _clrAll() end, nil, false, false, true)
@@ -498,18 +505,22 @@ local function _getCol(cfg, p)
 end
 
 local function _gnr()
-    local n, d = nil, math.huge
+    local n, d, pickedPart = nil, math.huge, nil
     for p, v in pairs(_S._L) do
         if v and p ~= _p0 and p.Character and p.Character:FindFirstChild("Humanoid") and p.Character.Humanoid.Health > 0 then
-            local r = p.Character:FindFirstChild(_S._P)
-            if r and _vChk(p.Character) then
+            local activeParts = {}
+            for k, val in pairs(_S._P) do if val then table.insert(activeParts, k) end end
+            if #activeParts == 0 then table.insert(activeParts, "Head") end
+            local randPart = activeParts[math.random(1, #activeParts)]
+            local r = p.Character:FindFirstChild(randPart)
+            if r and _vChk(p.Character, randPart) then
                 local sP, onS = _c0:WorldToViewportPoint(r.Position)
                 local dist = (Vector2.new(sP.X, sP.Y) - Vector2.new(_c0.ViewportSize.X/2, _c0.ViewportSize.Y/2)).Magnitude
-                if (not _S._Fv or dist <= _S._Fr) and dist < d then d = dist; n = p end
+                if (not _S._Fv or dist <= _S._Fr) and dist < d then d = dist; n = p; pickedPart = randPart end
             end
         end
     end
-    return n
+    return n, pickedPart
 end
 
 _g4.RenderStepped:Connect(function()
@@ -521,10 +532,30 @@ _g4.RenderStepped:Connect(function()
         local mP = _g3:GetMouseLocation()
         _mB_L.Position = UDim2.new(0, mP.X - _mlOff.X, 0, mP.Y - _mlOff.Y)
     end
-    if _S._A then local n = _gnr(); if n then _S._T = n end end
-    if _S._T and (_S._T.Character == nil or (_S._T.Character:FindFirstChild("Humanoid") and _S._T.Character.Humanoid.Health <= 0)) then _S._T = nil end
+    if _S._A then 
+        local n, pPart = _gnr()
+        if n then 
+            if _S._T ~= n or not _S._CurPart or not _S._P[_S._CurPart] then
+                _S._T = n 
+                _S._CurPart = pPart
+            end
+        else
+            _S._T = nil
+            _S._CurPart = nil
+        end 
+    end
+    if _S._T and (_S._T.Character == nil or (_S._T.Character:FindFirstChild("Humanoid") and _S._T.Character.Humanoid.Health <= 0)) then 
+        _S._T = nil 
+        _S._CurPart = nil
+    end
     if (_g3:IsMouseButtonPressed(_S._K1) or _S._isML) and _S._T and _S._T.Character then
-        local p = _S._T.Character:FindFirstChild(_S._P)
+        if not _S._CurPart or not _S._P[_S._CurPart] then
+            local activeParts = {}
+            for k, v in pairs(_S._P) do if v then table.insert(activeParts, k) end end
+            if #activeParts == 0 then table.insert(activeParts, "Head") end
+            _S._CurPart = activeParts[math.random(1, #activeParts)]
+        end
+        local p = _S._T.Character:FindFirstChild(_S._CurPart)
         if p then _c0.CFrame = _c0.CFrame:Lerp(CFrame.lookAt(_c0.CFrame.Position, p.Position), _S._Sp) end
     end
     _fO.Visible = _S._Fv and _S._V_Tgl; _fO.Radius = _S._Fr; _fO.Position = Vector2.new(_c0.ViewportSize.X/2, _c0.ViewportSize.Y/2); _fO.Color = _getCol(_S._C_Fv)
