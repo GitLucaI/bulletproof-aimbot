@@ -425,29 +425,37 @@ local function _gnr()
             local randPart = activeParts[math.random(1, #activeParts)]
             local r = p.Character:FindFirstChild(randPart)
             
-            local canTarget = true
-            local isVisible = _vChk(p.Character, randPart)
-            if not _S._LockInv and not isVisible then canTarget = false end
-            if _S._W and not isVisible then canTarget = false end
-            
-            if r and canTarget then
-                local hrp = p.Character:FindFirstChild("HumanoidRootPart")
-                local vel = hrp and hrp.AssemblyLinearVelocity or Vector3.new(0,0,0)
+            if r then
+                local canTarget = true
+                local isVisible = _vChk(p.Character, randPart)
                 
-                local targetDist = (r.Position - _c0.CFrame.Position).Magnitude
-                local travelTimeScale = targetDist / 1000
-                local pPos = r.Position + (vel * _S._Pred * travelTimeScale * 15)
+                if _S._W and not isVisible then 
+                    canTarget = false 
+                end
                 
-                local sP, onS = _c0:WorldToViewportPoint(pPos)
-                local dist2D = (Vector2.new(sP.X, sP.Y) - Vector2.new(_c0.ViewportSize.X/2, _c0.ViewportSize.Y/2)).Magnitude
+                if not _S._LockInv and not isVisible then
+                    canTarget = false
+                end
                 
-                local score = math.huge
-                if _S._Prio == "Crosshair" then score = dist2D
-                elseif _S._Prio == "Distance" then score = targetDist
-                elseif _S._Prio == "Health" then score = p.Character.Humanoid.Health end
+                if canTarget then
+                    local hrp = p.Character:FindFirstChild("HumanoidRootPart")
+                    local vel = hrp and hrp.AssemblyLinearVelocity or Vector3.new(0,0,0)
+                    
+                    local targetDist = (r.Position - _c0.CFrame.Position).Magnitude
+                    local travelTimeScale = targetDist / 1000
+                    local pPos = r.Position + (vel * _S._Pred * travelTimeScale * 15)
+                    
+                    local sP, onS = _c0:WorldToViewportPoint(pPos)
+                    local dist2D = (Vector2.new(sP.X, sP.Y) - Vector2.new(_c0.ViewportSize.X/2, _c0.ViewportSize.Y/2)).Magnitude
+                    
+                    local score = math.huge
+                    if _S._Prio == "Crosshair" then score = dist2D
+                    elseif _S._Prio == "Distance" then score = targetDist
+                    elseif _S._Prio == "Health" then score = p.Character.Humanoid.Health end
 
-                if onS and (not _S._Fv or dist2D <= _S._Fr) and score < d then
-                    d = score; n = p; pickedPart = randPart
+                    if onS and (not _S._Fv or dist2D <= _S._Fr) and score < d then
+                        d = score; n = p; pickedPart = randPart
+                    end
                 end
             end
         end
@@ -557,15 +565,10 @@ _g4.RenderStepped:Connect(function()
             h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop; h.Name = "BPA_H"
             h.Enabled = _S._L[p] and _S._E and _S._V_Tgl
             
-            if _S._UseVisC and isVis then
-                h.OutlineTransparency = 1
-                h.FillTransparency = 0.3
-                h.FillColor = _getCol(_S._C_Es, p)
-            else
-                h.OutlineTransparency = 0
-                h.OutlineColor = _getCol(_S._C_Es, p)
-                h.FillTransparency = 1
-            end
+            h.OutlineTransparency = 0
+            h.OutlineColor = _getCol(_S._C_Es, p)
+            h.FillTransparency = 0.3
+            h.FillColor = (_S._UseVisC and isVis) and _getCol(_S._C_Vis, p) or _getCol(_S._C_Es, p)
             
             if not _tL[p] then 
                 _tL[p] = { L = Drawing.new("Line"), T = Drawing.new("Text") }
@@ -581,7 +584,7 @@ _g4.RenderStepped:Connect(function()
                 
                 if _S._E then
                     dt.Visible = true; dt.Position = Vector2.new(sP.X, sP.Y + 15); dt.Text = "["..math.floor((c.HumanoidRootPart.Position - _c0.CFrame.Position).Magnitude).."]"
-                    dt.Color = (_S._UseVisC and isVis) and _getCol(_S._C_Es, p) or _getCol(_S._C_Es, p)
+                    dt.Color = (_S._UseVisC and isVis) and _getCol(_S._C_Vis, p) or _getCol(_S._C_Es, p)
                 else dt.Visible = false end
             else
                 tr.Visible = false; dt.Visible = false
