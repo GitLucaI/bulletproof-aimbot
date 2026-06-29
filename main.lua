@@ -423,13 +423,18 @@ local function _gnr()
             if r and (not _S._W or _vChk(p.Character, randPart)) then
                 local hrp = p.Character:FindFirstChild("HumanoidRootPart")
                 local vel = hrp and hrp.AssemblyLinearVelocity or Vector3.new(0,0,0)
-                local pPos = r.Position + (vel * _S._Pred)
+                
+                -- Optimization: Distance-scaled dynamic travel-time calculation
+                local targetDist = (r.Position - _c0.CFrame.Position).Magnitude
+                local travelTimeScale = targetDist / 1000
+                local pPos = r.Position + (vel * _S._Pred * travelTimeScale * 15)
+                
                 local sP, onS = _c0:WorldToViewportPoint(pPos)
                 local dist2D = (Vector2.new(sP.X, sP.Y) - Vector2.new(_c0.ViewportSize.X/2, _c0.ViewportSize.Y/2)).Magnitude
                 
                 local score = math.huge
                 if _S._Prio == "Crosshair" then score = dist2D
-                elseif _S._Prio == "Distance" then score = (pPos - _c0.CFrame.Position).Magnitude
+                elseif _S._Prio == "Distance" then score = targetDist
                 elseif _S._Prio == "Health" then score = p.Character.Humanoid.Health end
 
                 if onS and (not _S._Fv or dist2D <= _S._Fr) and score < d then
@@ -487,18 +492,31 @@ _g4.RenderStepped:Connect(function()
         if p then
             local hrp = _S._T.Character:FindFirstChild("HumanoidRootPart")
             local vel = hrp and hrp.AssemblyLinearVelocity or Vector3.new(0,0,0)
-            local pPos = p.Position + (vel * _S._Pred)
+            
+            local targetDist = (p.Position - _c0.CFrame.Position).Magnitude
+            local travelTimeScale = targetDist / 1000
+            local pPos = p.Position + (vel * _S._Pred * travelTimeScale * 15)
             
             if _S._SafeM then
-                pPos = pPos + Vector3.new(math.random(-20,20)/100, math.random(-20,20)/100, math.random(-20,20)/100)
+                pPos = pPos + Vector3.new(math.random(-15,15)/100, math.random(-15,15)/100, math.random(-15,15)/100)
             end
 
             local tCF = CFrame.lookAt(_c0.CFrame.Position, pPos)
+            
+            -- Optimization: Dynamic humanized mouse acceleration scaling
+            local _, onScreen = _c0:WorldToViewportPoint(pPos)
+            local currentLook = _c0.CFrame.LookVector
+            local targetLook = tCF.LookVector
+            local angleDiff = math.acos(math.clamp(currentLook:Dot(targetLook), -1, 1))
+            
+            local smoothFactor = _S._Sp
             if _S._AimA then
-                _c0.CFrame = _c0.CFrame:Lerp(tCF, _S._Sp * 0.15)
-            else
-                _c0.CFrame = _c0.CFrame:Lerp(tCF, _S._Sp)
+                smoothFactor = smoothFactor * 0.12
             end
+            
+            -- Dynamic deceleration multiplier near target crosshair center
+            local adaptiveScale = math.clamp(angleDiff * 3, 0.2, 1.0)
+            _c0.CFrame = _c0.CFrame:Lerp(tCF, smoothFactor * adaptiveScale)
         end
     end
 
@@ -506,12 +524,18 @@ _g4.RenderStepped:Connect(function()
     _fO.Visible = _S._Fv and _S._V_Tgl
     _fO.Radius = _S._Fr
     _fO.Position = Vector2.new(_c0.ViewportSize.X/2, _c0.ViewportSize.Y/2)
-    _fO.Color = (_S._UseVisC and visTarget) and _getCol(_S._C_Vis, _S._T) or _getCol(_S._C_Fv)
+    
+    -- Visual update: Adapt ring color instantly when target locked inside
+    if _S._T then
+        _fO.Color = Color3.fromRGB(255, 60, 60)
+    else
+        _fO.Color = (_S._UseVisC and visTarget) and _getCol(_S._C_Vis, _S._T) or _getCol(_S._C_Fv)
+    end
 
     if _S._T and _S._T.Character and _S._T.Character:FindFirstChild("HumanoidRootPart") then
         _tInfo.Visible = _S._V_Tgl
         local dist = math.floor((_S._T.Character.HumanoidRootPart.Position - _c0.CFrame.Position).Magnitude)
-        _tInfo.Text = "Target: " .. _S._T.Name .. " [" .. dist .. "]"
+        _tInfo.Text = "Target: " .. _S._T.Name .. " [" .. dist .. " studs]"
         _tInfo.Position = Vector2.new(_c0.ViewportSize.X/2, _c0.ViewportSize.Y/2 + _S._Fr + 15)
         _tInfo.Color = (_S._UseVisC and visTarget) and _getCol(_S._C_Vis, _S._T) or Color3.new(1,1,1)
     else
@@ -577,8 +601,18 @@ end
 
 _g1.PlayerAdded:Connect(_trackPlayer)
 for _, p in pairs(_g1:GetPlayers()) do _trackPlayer(p) end
+
+-- Performance Optimization: Complete Garbage Collection to prevent heavy memory leaks
 _g1.PlayerRemoving:Connect(function(p) 
-    if _tL[p] then _tL[p].L:Remove(); _tL[p].T:Remove(); _tL[p] = nil end 
+    if _tL[p] then 
+        pcall(function() _tL[p].L:Remove() end)
+        pcall(function() _tL[p].T:Remove() end)
+        _tL[p] = nil 
+    end 
+    if p.Character then
+        local targetHighlight = p.Character:FindFirstChild("BPA_H")
+        if targetHighlight then pcall(function() targetHighlight:Destroy() end) end
+    end
     _S._L[p] = nil 
     _rfsh() 
 end)
