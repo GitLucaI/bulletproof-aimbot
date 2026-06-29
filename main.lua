@@ -14,6 +14,7 @@ local _S = {
     _op = true, _E = false, _W = false, _Tr = false, _Fv = false, _Fr = 150, _OpM = false,
     _drS = false, _isML = false, _ULM = false, _V_Tgl = true, _SAll = false, _OpT = false,
     _CamFov = 70, _Pred = 0, _SafeM = false, _AimA = false, _Prio = "Crosshair", _UseVisC = false,
+    _LockInv = true,
     _MLP = {0.8, 0, 0.5, 0},
     _C_Es = {Mode = "Rainbow", Color = Color3.new(1,1,1)},
     _C_Tr = {Mode = "Team", Color = Color3.new(1,1,1)},
@@ -38,7 +39,7 @@ local function _save()
     local d = {
         A = _S._A, E = _S._E, Tr = _S._Tr, Fv = _S._Fv, W = _S._W, Fr = _S._Fr, Sp = _S._Sp, P = _S._P, MLP = _S._MLP,
         OpM = _S._OpM, VT = _S._V_Tgl, SA = _S._SAll, OT = _S._OpT, CFov = _S._CamFov, Pred = _S._Pred,
-        SM = _S._SafeM, AA = _S._AimA, Prio = _S._Prio, UV = _S._UseVisC, LK = _S._LockKey.Name,
+        SM = _S._SafeM, AA = _S._AimA, Prio = _S._Prio, UV = _S._UseVisC, LK = _S._LockKey.Name, LockInv = _S._LockInv,
         CE = {M = _S._C_Es.Mode, C = _serC(_S._C_Es.Color)},
         CT = {M = _S._C_Tr.Mode, C = _serC(_S._C_Tr.Color)},
         CF = {M = _S._C_Fv.Mode, C = _serC(_S._C_Fv.Color)},
@@ -62,6 +63,7 @@ local function _load()
             if d.AA ~= nil then _S._AimA = d.AA end
             if d.Prio ~= nil then _S._Prio = d.Prio end
             if d.UV ~= nil then _S._UseVisC = d.UV end
+            if d.LockInv ~= nil then _S._LockInv = d.LockInv end
             if d.LK then
                 pcall(function()
                     if Enum.KeyCode[d.LK] then _S._LockKey = Enum.KeyCode[d.LK]
@@ -301,7 +303,7 @@ end
 
 local _Ct = Instance.new("ScrollingFrame", _Cn)
 _Ct.Size = UDim2.new(1, -20, 0, 750); _Ct.Position = UDim2.new(0, 10, 0, 160); _Ct.BackgroundTransparency = 1
-_Ct.ScrollBarThickness = 0; _Ct.CanvasSize = UDim2.new(0,0,0,850)
+_Ct.ScrollBarThickness = 0; _Ct.CanvasSize = UDim2.new(0,0,0,900)
 
 local _BPB = {}
 local _MB = {}
@@ -386,7 +388,9 @@ _prioB.BackgroundColor3 = _S._V._ac
 _bldB("SAFE MODE (HUMANIZED)", UDim2.new(0,0,0,468), UDim2.new(0.48,0,0,30), function(b) _S._SafeM = not _S._SafeM; b.BackgroundColor3 = _S._SafeM and _S._V._s or _S._V._u end, nil, false, _S._SafeM, false)
 _bldB("AIM ASSIST (SOFT PULL)", UDim2.new(0.52,0,0,468), UDim2.new(0.48,0,0,30), function(b) _S._AimA = not _S._AimA; b.BackgroundColor3 = _S._AimA and _S._V._s or _S._V._u end, nil, false, _S._AimA, false)
 
-local _bK = _bldB("LOCK KEY: " .. _S._LockKey.Name, UDim2.new(0,0,0,504), UDim2.new(1,0,0,30), function(b)
+_bldB("LOCK INVISIBLE", UDim2.new(0,0,0,504), UDim2.new(1,0,0,30), function(b) _S._LockInv = not _S._LockInv; b.BackgroundColor3 = _S._LockInv and _S._V._s or _S._V._u end, nil, false, _S._LockInv, false)
+
+local _bK = _bldB("LOCK KEY: " .. _S._LockKey.Name, UDim2.new(0,0,0,540), UDim2.new(1,0,0,30), function(b)
     b.Text = "PRESS ANY KEY..."
     b.BackgroundColor3 = _S._V._ac
     local c; c = _g3.InputBegan:Connect(function(i)
@@ -400,10 +404,10 @@ local _bK = _bldB("LOCK KEY: " .. _S._LockKey.Name, UDim2.new(0,0,0,504), UDim2.
 end, nil, false, false, false)
 _bK.BackgroundColor3 = _S._V._ac
 
-_bldS("GAME FOV", UDim2.new(0,0,0,545), 30, 120, _S._CamFov, function(v) _S._CamFov = v end)
-_bldS("LOCK SPEED", UDim2.new(0,0,0,595), 0, 100, _S._Sp*100, function(v) _S._Sp = v/100 end)
-_bldS("FOV RADIUS", UDim2.new(0,0,0,645), 10, 800, _S._Fr, function(v) _S._Fr = v end)
-_bldS("PREDICTION", UDim2.new(0,0,0,695), 0, 50, _S._Pred*100, function(v) _S._Pred = v/100 end)
+_bldS("GAME FOV", UDim2.new(0,0,0,581), 30, 120, _S._CamFov, function(v) _S._CamFov = v end)
+_bldS("LOCK SPEED", UDim2.new(0,0,0,631), 0, 100, _S._Sp*100, function(v) _S._Sp = v/100 end)
+_bldS("FOV RADIUS", UDim2.new(0,0,0,681), 10, 800, _S._Fr, function(v) _S._Fr = v end)
+_bldS("PREDICTION", UDim2.new(0,0,0,731), 0, 50, _S._Pred*100, function(v) _S._Pred = v/100 end)
 
 local function _getCol(cfg, p)
     if cfg.Mode == "Rainbow" then return Color3.fromHSV(tick() % 5 / 5, 1, 1) end
@@ -420,11 +424,16 @@ local function _gnr()
             if #activeParts == 0 then table.insert(activeParts, "Head") end
             local randPart = activeParts[math.random(1, #activeParts)]
             local r = p.Character:FindFirstChild(randPart)
-            if r and (not _S._W or _vChk(p.Character, randPart)) then
+            
+            local canTarget = true
+            local isVisible = _vChk(p.Character, randPart)
+            if not _S._LockInv and not isVisible then canTarget = false end
+            if _S._W and not isVisible then canTarget = false end
+            
+            if r and canTarget then
                 local hrp = p.Character:FindFirstChild("HumanoidRootPart")
                 local vel = hrp and hrp.AssemblyLinearVelocity or Vector3.new(0,0,0)
                 
-                -- Optimization: Distance-scaled dynamic travel-time calculation
                 local targetDist = (r.Position - _c0.CFrame.Position).Magnitude
                 local travelTimeScale = targetDist / 1000
                 local pPos = r.Position + (vel * _S._Pred * travelTimeScale * 15)
@@ -503,7 +512,6 @@ _g4.RenderStepped:Connect(function()
 
             local tCF = CFrame.lookAt(_c0.CFrame.Position, pPos)
             
-            -- Optimization: Dynamic humanized mouse acceleration scaling
             local _, onScreen = _c0:WorldToViewportPoint(pPos)
             local currentLook = _c0.CFrame.LookVector
             local targetLook = tCF.LookVector
@@ -514,7 +522,6 @@ _g4.RenderStepped:Connect(function()
                 smoothFactor = smoothFactor * 0.12
             end
             
-            -- Dynamic deceleration multiplier near target crosshair center
             local adaptiveScale = math.clamp(angleDiff * 3, 0.2, 1.0)
             _c0.CFrame = _c0.CFrame:Lerp(tCF, smoothFactor * adaptiveScale)
         end
@@ -525,7 +532,6 @@ _g4.RenderStepped:Connect(function()
     _fO.Radius = _S._Fr
     _fO.Position = Vector2.new(_c0.ViewportSize.X/2, _c0.ViewportSize.Y/2)
     
-    -- Visual update: Adapt ring color instantly when target locked inside
     if _S._T then
         _fO.Color = Color3.fromRGB(255, 60, 60)
     else
@@ -550,8 +556,16 @@ _g4.RenderStepped:Connect(function()
             local h = c:FindFirstChild("BPA_H") or Instance.new("Highlight", c)
             h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop; h.Name = "BPA_H"
             h.Enabled = _S._L[p] and _S._E and _S._V_Tgl
-            h.OutlineColor = (_S._UseVisC and isVis) and _getCol(_S._C_Vis, p) or _getCol(_S._C_Es, p)
-            h.FillTransparency = 1
+            
+            if _S._UseVisC and isVis then
+                h.OutlineTransparency = 1
+                h.FillTransparency = 0.3
+                h.FillColor = _getCol(_S._C_Es, p)
+            else
+                h.OutlineTransparency = 0
+                h.OutlineColor = _getCol(_S._C_Es, p)
+                h.FillTransparency = 1
+            end
             
             if not _tL[p] then 
                 _tL[p] = { L = Drawing.new("Line"), T = Drawing.new("Text") }
@@ -567,7 +581,7 @@ _g4.RenderStepped:Connect(function()
                 
                 if _S._E then
                     dt.Visible = true; dt.Position = Vector2.new(sP.X, sP.Y + 15); dt.Text = "["..math.floor((c.HumanoidRootPart.Position - _c0.CFrame.Position).Magnitude).."]"
-                    dt.Color = h.OutlineColor
+                    dt.Color = (_S._UseVisC and isVis) and _getCol(_S._C_Es, p) or _getCol(_S._C_Es, p)
                 else dt.Visible = false end
             else
                 tr.Visible = false; dt.Visible = false
@@ -602,7 +616,6 @@ end
 _g1.PlayerAdded:Connect(_trackPlayer)
 for _, p in pairs(_g1:GetPlayers()) do _trackPlayer(p) end
 
--- Performance Optimization: Complete Garbage Collection to prevent heavy memory leaks
 _g1.PlayerRemoving:Connect(function(p) 
     if _tL[p] then 
         pcall(function() _tL[p].L:Remove() end)
