@@ -524,6 +524,9 @@ local function _gnr()
 end
 
 _g4.RenderStepped:Connect(function()
+    if _c0.FieldOfView ~= _S._Fr then
+        _c0.FieldOfView = _S._Fr
+    end
     if _drM then
         local mP = _g3:GetMouseLocation()
         _M.Position = UDim2.new(0, mP.X - _mOff.X, 0, mP.Y - _mOff.Y)
