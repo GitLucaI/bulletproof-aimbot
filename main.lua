@@ -9,48 +9,26 @@ local _p0 = _g1.LocalPlayer
 local _c0 = workspace.CurrentCamera
 
 local _S = {
-    _L = {},
-    _A = false,
-    _T = nil,
-    _P = {Head = true, UpperTorso = false, LeftLowerLeg = false},
-    _CurPart = nil,
-    _K1 = Enum.UserInputType.MouseButton2,
-    _K2 = Enum.UserInputType.MouseButton3,
-    _Sp = 1,
-    _mK = nil,
-    _op = true,
-    _E = false,
-    _W = false,
-    _Tr = false,
-    _Fv = false,
-    _Fr = 150,
-    _OpM = false,
-    _drS = false,
-    _isML = false,
-    _ULM = false,
-    _V_Tgl = true,
-    _SAll = false,
-    _OpT = false,
+    _L = {}, _A = false, _T = nil, _P = {Head = true, UpperTorso = false, LeftLowerLeg = false},
+    _CurPart = nil, _LockKey = Enum.UserInputType.MouseButton2, _Sp = 1, _mK = nil,
+    _op = true, _E = false, _W = false, _Tr = false, _Fv = false, _Fr = 150, _OpM = false,
+    _drS = false, _isML = false, _ULM = false, _V_Tgl = true, _SAll = false, _OpT = false,
+    _CamFov = 70, _Pred = 0, _SafeM = false, _AimA = false, _Prio = "Crosshair", _UseVisC = false,
     _MLP = {0.8, 0, 0.5, 0},
     _C_Es = {Mode = "Rainbow", Color = Color3.new(1,1,1)},
     _C_Tr = {Mode = "Team", Color = Color3.new(1,1,1)},
     _C_Fv = {Mode = "Static", Color = Color3.new(1,1,1)},
+    _C_Vis = {Mode = "Static", Color = Color3.new(0,1,0)},
     _V = {
-        _m = Color3.fromRGB(15, 17, 20),
-        _h = Color3.fromRGB(25, 27, 32),
-        _s = Color3.fromRGB(0, 180, 100),
-        _u = Color3.fromRGB(180, 50, 50),
-        _ac = Color3.fromRGB(35, 38, 45),
+        _m = Color3.fromRGB(15, 17, 20), _h = Color3.fromRGB(25, 27, 32), _s = Color3.fromRGB(0, 180, 100),
+        _u = Color3.fromRGB(180, 50, 50), _ac = Color3.fromRGB(35, 38, 45),
         _gr = ColorSequence.new(Color3.fromRGB(0, 180, 100), Color3.fromRGB(0, 120, 200))
     }
 }
 
 local function _addS(obj)
     local s = Instance.new("UIStroke")
-    s.Thickness = 1.5
-    s.Color = Color3.new(0,0,0)
-    s.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
-    s.Parent = obj
+    s.Thickness = 1.5; s.Color = Color3.new(0,0,0); s.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual; s.Parent = obj
 end
 
 local function _serC(c) return {c.R, c.G, c.B} end
@@ -58,42 +36,50 @@ local function _desC(t) return Color3.new(t[1], t[2], t[3]) end
 
 local function _save()
     local d = {
-        A = _S._A, E = _S._E, Tr = _S._Tr, Fv = _S._Fv, W = _S._W,
-        Fr = _S._Fr, Sp = _S._Sp, P = _S._P, MLP = _S._MLP, OpM = _S._OpM,
-        VT = _S._V_Tgl, SA = _S._SAll, OT = _S._OpT,
+        A = _S._A, E = _S._E, Tr = _S._Tr, Fv = _S._Fv, W = _S._W, Fr = _S._Fr, Sp = _S._Sp, P = _S._P, MLP = _S._MLP,
+        OpM = _S._OpM, VT = _S._V_Tgl, SA = _S._SAll, OT = _S._OpT, CFov = _S._CamFov, Pred = _S._Pred,
+        SM = _S._SafeM, AA = _S._AimA, Prio = _S._Prio, UV = _S._UseVisC, LK = _S._LockKey.Name,
         CE = {M = _S._C_Es.Mode, C = _serC(_S._C_Es.Color)},
         CT = {M = _S._C_Tr.Mode, C = _serC(_S._C_Tr.Color)},
-        CF = {M = _S._C_Fv.Mode, C = _serC(_S._C_Fv.Color)}
+        CF = {M = _S._C_Fv.Mode, C = _serC(_S._C_Fv.Color)},
+        CV = {M = _S._C_Vis.Mode, C = _serC(_S._C_Vis.Color)}
     }
-    writefile("BPA_V1_Cfg.json", _hs:JSONEncode(d))
+    writefile("BPA_V2_Cfg.json", _hs:JSONEncode(d))
 end
 
 local function _load()
-    if isfile("BPA_V1_Cfg.json") then
-        local s, d = pcall(function() return _hs:JSONDecode(readfile("BPA_V1_Cfg.json")) end)
+    if isfile("BPA_V2_Cfg.json") then
+        local s, d = pcall(function() return _hs:JSONDecode(readfile("BPA_V2_Cfg.json")) end)
         if s then
             _S._A = d.A; _S._E = d.E; _S._Tr = d.Tr; _S._Fv = d.Fv; _S._W = d.W
             _S._Fr = d.Fr; _S._Sp = d.Sp; _S._MLP = d.MLP; _S._OpM = d.OpM or false
             if d.VT ~= nil then _S._V_Tgl = d.VT end
             if d.SA ~= nil then _S._SAll = d.SA end
             if d.OT ~= nil then _S._OpT = d.OT end
-            if type(d.P) == "table" then
-                _S._P = d.P
-            elseif type(d.P) == "string" then
-                _S._P = {Head = false, UpperTorso = false, LeftLowerLeg = false}
-                _S._P[d.P] = true
+            if d.CFov ~= nil then _S._CamFov = d.CFov end
+            if d.Pred ~= nil then _S._Pred = d.Pred end
+            if d.SM ~= nil then _S._SafeM = d.SM end
+            if d.AA ~= nil then _S._AimA = d.AA end
+            if d.Prio ~= nil then _S._Prio = d.Prio end
+            if d.UV ~= nil then _S._UseVisC = d.UV end
+            if d.LK then
+                pcall(function()
+                    if Enum.KeyCode[d.LK] then _S._LockKey = Enum.KeyCode[d.LK]
+                    elseif Enum.UserInputType[d.LK] then _S._LockKey = Enum.UserInputType[d.LK] end
+                end)
             end
-            _S._C_Es.Mode = d.CE.M; _S._C_Es.Color = _desC(d.CE.C)
-            _S._C_Tr.Mode = d.CT.M; _S._C_Tr.Color = _desC(d.CT.C)
-            _S._C_Fv.Mode = d.CF.M; _S._C_Fv.Color = _desC(d.CF.C)
+            if type(d.P) == "table" then _S._P = d.P elseif type(d.P) == "string" then _S._P = {Head = false, UpperTorso = false, LeftLowerLeg = false}; _S._P[d.P] = true end
+            if d.CE then _S._C_Es.Mode = d.CE.M; _S._C_Es.Color = _desC(d.CE.C) end
+            if d.CT then _S._C_Tr.Mode = d.CT.M; _S._C_Tr.Color = _desC(d.CT.C) end
+            if d.CF then _S._C_Fv.Mode = d.CF.M; _S._C_Fv.Color = _desC(d.CF.C) end
+            if d.CV then _S._C_Vis.Mode = d.CV.M; _S._C_Vis.Color = _desC(d.CV.C) end
         end
     end
 end
-
 pcall(_load)
 
 local _G = Instance.new("ScreenGui")
-_G.Name = "BulletproofAimbotServiceV1"
+_G.Name = "BulletproofAimbotServiceV2"
 _G.ResetOnSpawn = false
 _G.DisplayOrder = 9999
 _G.Parent = _cg
@@ -105,16 +91,16 @@ local function _rnd(p, r)
 end
 
 local _fO = Drawing.new("Circle")
-_fO.Visible = false
-_fO.Thickness = 2
-_fO.NumSides = 64
-_fO.Radius = _S._Fr
+_fO.Visible = false; _fO.Thickness = 2; _fO.NumSides = 64; _fO.Radius = _S._Fr
+
+local _tInfo = Drawing.new("Text")
+_tInfo.Visible = false; _tInfo.Size = 18; _tInfo.Center = true; _tInfo.Outline = true; _tInfo.Color = Color3.new(1,1,1)
 
 local _tL = {}
 
 local _M = Instance.new("Frame", _G)
-_M.Size = UDim2.new(0, 380, 0, 750)
-_M.Position = UDim2.new(0.5, -190, 0.5, -375)
+_M.Size = UDim2.new(0, 380, 0, 950)
+_M.Position = UDim2.new(0.5, -190, 0.5, -475)
 _M.BackgroundColor3 = _S._V._m
 _M.BorderSizePixel = 0
 _M.Active = true
@@ -175,7 +161,7 @@ end)
 
 local _CP = Instance.new("Frame", _G)
 _CP.Size = UDim2.new(0, 300, 0, 420)
-_CP.Position = UDim2.new(0.5, 200, 0.5, -210)
+_CP.Position = UDim2.new(0.5, -150, 0.5, -210)
 _CP.BackgroundColor3 = _S._V._h
 _CP.Visible = false
 _CP.Active = true
@@ -192,13 +178,6 @@ _CTl.TextSize = 16
 _CTl.ZIndex = 101
 _addS(_CTl)
 
-local _CW = Instance.new("ImageLabel", _CP)
-_CW.Size = UDim2.new(0, 150, 0, 150)
-_CW.Position = UDim2.new(0.5, -75, 0, 50)
-_CW.Image = "rbxassetid://2849323573"
-_CW.BackgroundTransparency = 1
-_CW.ZIndex = 101
-
 local _R_In = Instance.new("TextBox", _CP)
 _R_In.Size = UDim2.new(0, 60, 0, 30)
 _R_In.Position = UDim2.new(0.1, 0, 0, 220)
@@ -213,30 +192,17 @@ _rnd(_R_In, 4)
 _addS(_R_In)
 
 local _G_In = _R_In:Clone()
-_G_In.Parent = _CP
-_G_In.Position = UDim2.new(0.4, 0, 0, 220)
-_G_In.TextColor3 = Color3.new(0,1,0)
-
+_G_In.Parent = _CP; _G_In.Position = UDim2.new(0.4, 0, 0, 220); _G_In.TextColor3 = Color3.new(0,1,0)
 local _B_In = _R_In:Clone()
-_B_In.Parent = _CP
-_B_In.Position = UDim2.new(0.7, 0, 0, 220)
-_B_In.TextColor3 = Color3.new(0,0,1)
+_B_In.Parent = _CP; _B_In.Position = UDim2.new(0.7, 0, 0, 220); _B_In.TextColor3 = Color3.new(0,0,1)
 
 local _cur_cfg = nil
 
 local function _mBtn(txt, pos, col, cb)
     local b = Instance.new("TextButton", _CP)
-    b.Size = UDim2.new(0.28, 0, 0, 30)
-    b.Position = pos
-    b.Text = txt
-    b.BackgroundColor3 = col
-    b.TextColor3 = Color3.new(1, 1, 1)
-    b.Font = Enum.Font.Code
-    b.TextSize = 12
-    b.ZIndex = 101
-    _rnd(b, 5)
-    _addS(b)
-    b.MouseButton1Click:Connect(cb)
+    b.Size = UDim2.new(0.28, 0, 0, 30); b.Position = pos; b.Text = txt; b.BackgroundColor3 = col
+    b.TextColor3 = Color3.new(1, 1, 1); b.Font = Enum.Font.Code; b.TextSize = 12; b.ZIndex = 101
+    _rnd(b, 5); _addS(b); b.MouseButton1Click:Connect(cb)
     return b
 end
 
@@ -252,69 +218,38 @@ local _btn_Conf = _mBtn("CONFIRM", UDim2.new(0.04, 0, 0, 330), Color3.fromRGB(0,
     end
     _CP.Visible = false
 end)
-_btn_Conf.Size = UDim2.new(0.44, 0, 0, 40)
-_btn_Conf.TextSize = 16
+_btn_Conf.Size = UDim2.new(0.44, 0, 0, 40); _btn_Conf.TextSize = 16
 
-local _btn_Canc = _mBtn("CANCEL", UDim2.new(0.52, 0, 0, 330), Color3.fromRGB(120, 0, 0), function()
-    _CP.Visible = false
-end)
-_btn_Canc.Size = UDim2.new(0.44, 0, 0, 40)
-_btn_Canc.TextSize = 16
+local _btn_Canc = _mBtn("CANCEL", UDim2.new(0.52, 0, 0, 330), Color3.fromRGB(120, 0, 0), function() _CP.Visible = false end)
+_btn_Canc.Size = UDim2.new(0.44, 0, 0, 40); _btn_Canc.TextSize = 16
 
 local _H = Instance.new("Frame", _M)
-_H.Size = UDim2.new(1, 0, 0, 50)
-_H.BackgroundColor3 = _S._V._h
-_rnd(_H, 12)
+_H.Size = UDim2.new(1, 0, 0, 50); _H.BackgroundColor3 = _S._V._h; _rnd(_H, 12)
 
 local _Tl = Instance.new("TextLabel", _H)
-_Tl.Size = UDim2.new(1, -100, 1, 0)
-_Tl.Position = UDim2.new(0, 15, 0, 0)
-_Tl.BackgroundTransparency = 1
-_Tl.Text = "BULLETPROOF V1"
-_Tl.TextColor3 = Color3.new(1, 1, 1)
-_Tl.Font = Enum.Font.Code
-_Tl.TextSize = 22
-_Tl.TextXAlignment = Enum.TextXAlignment.Left
-_addS(_Tl)
+_Tl.Size = UDim2.new(1, -100, 1, 0); _Tl.Position = UDim2.new(0, 15, 0, 0); _Tl.BackgroundTransparency = 1
+_Tl.Text = "BULLETPROOF V2"; _Tl.TextColor3 = Color3.new(1, 1, 1); _Tl.Font = Enum.Font.Code; _Tl.TextSize = 22; _Tl.TextXAlignment = Enum.TextXAlignment.Left; _addS(_Tl)
 
 local _mB = Instance.new("TextButton", _H)
-_mB.Size = UDim2.new(0, 35, 0, 35)
-_mB.Position = UDim2.new(1, -45, 0.5, -17)
-_mB.BackgroundColor3 = _S._V._ac
-_mB.Text = "-"
-_mB.TextColor3 = Color3.new(1, 1, 1)
-_mB.TextSize = 20
-_rnd(_mB, 8)
-_addS(_mB)
+_mB.Size = UDim2.new(0, 35, 0, 35); _mB.Position = UDim2.new(1, -45, 0.5, -17); _mB.BackgroundColor3 = _S._V._ac; _mB.Text = "-"; _mB.TextColor3 = Color3.new(1, 1, 1); _mB.TextSize = 20; _rnd(_mB, 8); _addS(_mB)
 
 local _Cn = Instance.new("Frame", _M)
-_Cn.Size = UDim2.new(1, 0, 1, -50)
-_Cn.Position = UDim2.new(0, 0, 0, 50)
-_Cn.BackgroundTransparency = 1
+_Cn.Size = UDim2.new(1, 0, 1, -50); _Cn.Position = UDim2.new(0, 0, 0, 50); _Cn.BackgroundTransparency = 1
 
 local _Sf = Instance.new("ScrollingFrame", _Cn)
-_Sf.Size = UDim2.new(1, -20, 0, 140)
-_Sf.Position = UDim2.new(0, 10, 0, 10)
-_Sf.BackgroundColor3 = _S._V._ac
-_Sf.BackgroundTransparency = 0.8
-_Sf.BorderSizePixel = 0
-_Sf.ScrollBarThickness = 1
-_rnd(_Sf, 10)
+_Sf.Size = UDim2.new(1, -20, 0, 140); _Sf.Position = UDim2.new(0, 10, 0, 10); _Sf.BackgroundColor3 = _S._V._ac; _Sf.BackgroundTransparency = 0.8; _Sf.BorderSizePixel = 0; _Sf.ScrollBarThickness = 1; _rnd(_Sf, 10)
 
 local _Ly = Instance.new("UIListLayout", _Sf)
-_Ly.Padding = UDim.new(0, 6)
-_Ly.SortOrder = Enum.SortOrder.LayoutOrder
+_Ly.Padding = UDim.new(0, 6); _Ly.SortOrder = Enum.SortOrder.LayoutOrder
 
-local function _vChk(p, partName)
-    if not _S._W then return true end
-    local c, rP = _p0.Character, p:FindFirstChild(partName)
+local function _vChk(c, partName)
+    local rP = c:FindFirstChild(partName)
     if not (c and rP) then return false end
-    local mP = c:FindFirstChild("Head")
-    if not mP then return false end
+    local mP = _c0.CFrame.Position
     local rPms = RaycastParams.new()
     rPms.FilterType = Enum.RaycastFilterType.Exclude
-    rPms.FilterDescendantsInstances = {c, p.Parent}
-    local r = workspace:Raycast(mP.Position, (rP.Position - mP.Position).Unit * (rP.Position - mP.Position).Magnitude, rPms)
+    rPms.FilterDescendantsInstances = {_p0.Character, c}
+    local r = workspace:Raycast(mP, (rP.Position - mP).Unit * (rP.Position - mP).Magnitude, rPms)
     return not r
 end
 
@@ -325,9 +260,7 @@ local function _tgl(p, v)
     if b then b.BackgroundColor3 = _S._L[p] and _S._V._s or _S._V._u end
 end
 
-local function _clrAll()
-    for _,p in pairs(_g1:GetPlayers()) do _S._L[p] = false end
-end
+local function _clrAll() for _,p in pairs(_g1:GetPlayers()) do _S._L[p] = false end end
 
 local function _updOpponents()
     for _, p in pairs(_g1:GetPlayers()) do
@@ -337,30 +270,15 @@ end
 
 local function _applyPlayerRules(p)
     if p == _p0 then return end
-    if _S._SAll then
-        _S._L[p] = true
-    elseif _S._OpT then
-        if p.Team ~= _p0.Team then
-            _S._L[p] = true
-        else
-            _S._L[p] = false
-        end
-    end
+    if _S._SAll then _S._L[p] = true elseif _S._OpT then if p.Team ~= _p0.Team then _S._L[p] = true else _S._L[p] = false end end
 end
 
 local function _rfsh()
     for _, x in pairs(_Sf:GetChildren()) do if x:IsA("TextButton") then x:Destroy() end end
     for _, t in pairs(_g2:GetTeams()) do
         local b = Instance.new("TextButton", _Sf)
-        b.Size = UDim2.new(1, -10, 0, 35)
-        b.Text = " [TEAM] " .. t.Name:upper()
-        b.TextColor3 = Color3.new(1, 1, 1)
-        b.Font = Enum.Font.Code
-        b.TextSize = 14
-        _rnd(b, 5)
-        _addS(b)
-        local plrs = t:GetPlayers()
-        local active = #plrs > 0
+        b.Size = UDim2.new(1, -10, 0, 35); b.Text = " [TEAM] " .. t.Name:upper(); b.TextColor3 = Color3.new(1, 1, 1); b.Font = Enum.Font.Code; b.TextSize = 14; _rnd(b, 5); _addS(b)
+        local plrs = t:GetPlayers(); local active = #plrs > 0
         for _,p in pairs(plrs) do if not _S._L[p] then active = false break end end
         b.BackgroundColor3 = active and _S._V._s or _S._V._u
         b.MouseButton1Click:Connect(function()
@@ -375,72 +293,41 @@ local function _rfsh()
     for _, p in pairs(_g1:GetPlayers()) do
         if p ~= _p0 then
             local b = Instance.new("TextButton", _Sf)
-            b.Name = p.Name
-            b.Size = UDim2.new(1, -10, 0, 35)
-            b.Text = " " .. p.Name
-            b.TextColor3 = Color3.new(1, 1, 1)
-            b.Font = Enum.Font.Code
-            b.TextSize = 14
-            b.TextXAlignment = Enum.TextXAlignment.Left
-            b.BackgroundColor3 = _S._L[p] and _S._V._s or _S._V._u
-            _rnd(b, 5)
-            _addS(b)
+            b.Name = p.Name; b.Size = UDim2.new(1, -10, 0, 35); b.Text = " " .. p.Name; b.TextColor3 = Color3.new(1, 1, 1); b.Font = Enum.Font.Code; b.TextSize = 14; b.TextXAlignment = Enum.TextXAlignment.Left; b.BackgroundColor3 = _S._L[p] and _S._V._s or _S._V._u; _rnd(b, 5); _addS(b)
             b.MouseButton1Click:Connect(function() _tgl(p) _rfsh() end)
         end
     end
 end
 
-local _Ct = Instance.new("Frame", _Cn)
-_Ct.Size = UDim2.new(1, -20, 0, 550)
-_Ct.Position = UDim2.new(0, 10, 0, 160)
-_Ct.BackgroundTransparency = 1
+local _Ct = Instance.new("ScrollingFrame", _Cn)
+_Ct.Size = UDim2.new(1, -20, 0, 750); _Ct.Position = UDim2.new(0, 10, 0, 160); _Ct.BackgroundTransparency = 1
+_Ct.ScrollBarThickness = 0; _Ct.CanvasSize = UDim2.new(0,0,0,850)
 
 local _BPB = {}
 local _MB = {}
 
 local function _updBP()
-    for n, b in pairs(_BPB) do
-        b.BackgroundColor3 = _S._P[n] and _S._V._s or _S._V._u
-    end
+    for n, b in pairs(_BPB) do b.BackgroundColor3 = _S._P[n] and _S._V._s or _S._V._u end
 end
 
 local function _bldB(txt, pos, sz, cb, cfg, hasT, startS, isM)
     local b = Instance.new("TextButton", _Ct)
-    b.Size = sz or UDim2.new(0.31, 0, 0, 30)
-    b.Position = pos
-    b.Text = txt
-    b.BackgroundColor3 = startS and _S._V._s or _S._V._u
-    b.TextColor3 = Color3.new(1, 1, 1)
-    b.Font = Enum.Font.Code
-    b.TextSize = 13
-    _rnd(b, 6)
-    _addS(b)
+    b.Size = sz or UDim2.new(0.31, 0, 0, 30); b.Position = pos; b.Text = txt; b.BackgroundColor3 = startS and _S._V._s or _S._V._u
+    b.TextColor3 = Color3.new(1, 1, 1); b.Font = Enum.Font.Code; b.TextSize = 13; _rnd(b, 6); _addS(b)
     b.MouseButton1Click:Connect(function()
         if isM then
             for _, btn in pairs(_MB) do btn.BackgroundColor3 = _S._V._u end
-            b.BackgroundColor3 = _S._V._s
-            task.delay(0.1, function() b.BackgroundColor3 = _S._V._u end)
+            b.BackgroundColor3 = _S._V._s; task.delay(0.1, function() b.BackgroundColor3 = _S._V._u end)
         end
-        cb(b)
-        _rfsh()
-        _save()
+        cb(b); _rfsh(); _save()
     end)
     if isM then table.insert(_MB, b) end
     if cfg then
         local eb = Instance.new("TextButton", b)
-        eb.Size = UDim2.new(0, 24, 0, 24)
-        eb.Position = UDim2.new(1, -28, 0.5, -12)
-        eb.BackgroundColor3 = Color3.fromRGB(60, 65, 75)
-        eb.Text = "E"
-        eb.TextColor3 = Color3.new(1, 1, 1)
-        _rnd(eb, 4)
-        _addS(eb)
+        eb.Size = UDim2.new(0, 24, 0, 24); eb.Position = UDim2.new(1, -28, 0.5, -12); eb.BackgroundColor3 = Color3.fromRGB(60, 65, 75); eb.Text = "E"; eb.TextColor3 = Color3.new(1, 1, 1); _rnd(eb, 4); _addS(eb)
         eb.MouseButton1Click:Connect(function()
-            _cur_cfg = cfg
-            _tBtn.Visible = hasT
-            _R_In.Text = math.floor(cfg.Color.R * 255)
-            _G_In.Text = math.floor(cfg.Color.G * 255)
-            _B_In.Text = math.floor(cfg.Color.B * 255)
+            _cur_cfg = cfg; _tBtn.Visible = hasT
+            _R_In.Text = math.floor(cfg.Color.R * 255); _G_In.Text = math.floor(cfg.Color.G * 255); _B_In.Text = math.floor(cfg.Color.B * 255)
             _CP.Visible = true
         end)
     end
@@ -448,13 +335,8 @@ local function _bldB(txt, pos, sz, cb, cfg, hasT, startS, isM)
 end
 
 local function _bldS(txt, pos, min, max, start, cb)
-    local c = Instance.new("Frame", _Ct)
-    c.Size = UDim2.new(1, 0, 0, 45)
-    c.Position = pos
-    c.BackgroundTransparency = 1
-    local l = Instance.new("TextLabel", c)
-    l.Size = UDim2.new(1, 0, 0, 20); l.Text = txt .. ": " .. math.floor(start); l.TextColor3 = Color3.new(1,1,1); l.Font = Enum.Font.Code; l.TextSize = 14; l.BackgroundTransparency = 1; l.TextXAlignment = Enum.TextXAlignment.Left
-    _addS(l)
+    local c = Instance.new("Frame", _Ct); c.Size = UDim2.new(1, 0, 0, 45); c.Position = pos; c.BackgroundTransparency = 1
+    local l = Instance.new("TextLabel", c); l.Size = UDim2.new(1, 0, 0, 20); l.Text = txt .. ": " .. string.format("%.1f", start); l.TextColor3 = Color3.new(1,1,1); l.Font = Enum.Font.Code; l.TextSize = 14; l.BackgroundTransparency = 1; l.TextXAlignment = Enum.TextXAlignment.Left; _addS(l)
     local b = Instance.new("Frame", c); b.Size = UDim2.new(1, 0, 0, 8); b.Position = UDim2.new(0, 0, 0, 25); b.BackgroundColor3 = Color3.fromRGB(30, 32, 38); _rnd(b, 4)
     local f = Instance.new("Frame", b); f.Size = UDim2.new((start - min)/(max - min), 0, 1, 0); f.BackgroundColor3 = Color3.new(1,1,1); _rnd(f, 4)
     local g = Instance.new("UIGradient", f); g.Color = _S._V._gr
@@ -464,15 +346,11 @@ local function _bldS(txt, pos, min, max, start, cb)
         local p = math.clamp((mX - b.AbsolutePosition.X) / b.AbsoluteSize.X, 0, 1)
         f.Size = UDim2.new(p, 0, 1, 0)
         local v = min + (p * (max - min))
-        l.Text = txt .. ": " .. math.floor(v)
+        l.Text = txt .. ": " .. string.format("%.1f", v)
         cb(v)
     end
-    b.InputBegan:Connect(function(i) 
-        if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then 
-            active = true; _S._drS = true; upd() 
-        end 
-    end)
-    _g3.InputEnded:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then if active then _save() end active = false; _S._drS = false end end)
+    b.InputBegan:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then active = true; _S._drS = true; upd() end end)
+    _g3.InputEnded:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then if active then _save() end; active = false; _S._drS = false end end)
     _g4.RenderStepped:Connect(function() if active then upd() end end)
 end
 
@@ -494,9 +372,38 @@ _bldB("UNLOCK POSITION SETTING", UDim2.new(0,0,0,288), UDim2.new(1,0,0,30), func
 local _vB = _bldB("TOGGLE VISUALS [RSHIFT]", UDim2.new(0,0,0,324), UDim2.new(1,0,0,30), function(b) _S._V_Tgl = not _S._V_Tgl; b.BackgroundColor3 = _S._V_Tgl and _S._V._s or _S._V._u end, nil, false, _S._V_Tgl, false)
 _bldB("HIDE GUI [INSERT]", UDim2.new(0,0,0,360), UDim2.new(1,0,0,30), function() _G.Enabled = not _G.Enabled end, nil, false, true, false)
 
-_bldS("GAME FOV", UDim2.new(0,0,0,405), 30, 120, _c0.FieldOfView, function(v) _c0.FieldOfView = v end)
-_bldS("LOCK SPEED", UDim2.new(0,0,0,455), 0, 100, _S._Sp*100, function(v) _S._Sp = v/100 end)
-_bldS("FOV RADIUS", UDim2.new(0,0,0,505), 10, 800, _S._Fr, function(v) _S._Fr = v end)
+_bldB("VISIBLE CHECK HIGHLIGHT", UDim2.new(0,0,0,396), UDim2.new(1,0,0,30), function(b) _S._UseVisC = not _S._UseVisC; b.BackgroundColor3 = _S._UseVisC and _S._V._s or _S._V._u end, _S._C_Vis, false, _S._UseVisC, false)
+
+local _prioList = {"Crosshair", "Distance", "Health"}
+local _prioB = _bldB("PRIORITY: " .. _S._Prio, UDim2.new(0,0,0,432), UDim2.new(1,0,0,30), function(b)
+    local idx = table.find(_prioList, _S._Prio) or 1
+    idx = idx % 3 + 1
+    _S._Prio = _prioList[idx]
+    b.Text = "PRIORITY: " .. _S._Prio
+end, nil, false, true, false)
+_prioB.BackgroundColor3 = _S._V._ac
+
+_bldB("SAFE MODE (HUMANIZED)", UDim2.new(0,0,0,468), UDim2.new(0.48,0,0,30), function(b) _S._SafeM = not _S._SafeM; b.BackgroundColor3 = _S._SafeM and _S._V._s or _S._V._u end, nil, false, _S._SafeM, false)
+_bldB("AIM ASSIST (SOFT PULL)", UDim2.new(0.52,0,0,468), UDim2.new(0.48,0,0,30), function(b) _S._AimA = not _S._AimA; b.BackgroundColor3 = _S._AimA and _S._V._s or _S._V._u end, nil, false, _S._AimA, false)
+
+local _bK = _bldB("LOCK KEY: " .. _S._LockKey.Name, UDim2.new(0,0,0,504), UDim2.new(1,0,0,30), function(b)
+    b.Text = "PRESS ANY KEY..."
+    b.BackgroundColor3 = _S._V._ac
+    local c; c = _g3.InputBegan:Connect(function(i)
+        if i.UserInputType == Enum.UserInputType.Keyboard or i.UserInputType.Name:find("MouseButton") then
+            _S._LockKey = i.UserInputType == Enum.UserInputType.Keyboard and i.KeyCode or i.UserInputType
+            b.Text = "LOCK KEY: " .. _S._LockKey.Name
+            c:Disconnect()
+            _save()
+        end
+    end)
+end, nil, false, false, false)
+_bK.BackgroundColor3 = _S._V._ac
+
+_bldS("GAME FOV", UDim2.new(0,0,0,545), 30, 120, _S._CamFov, function(v) _S._CamFov = v end)
+_bldS("LOCK SPEED", UDim2.new(0,0,0,595), 0, 100, _S._Sp*100, function(v) _S._Sp = v/100 end)
+_bldS("FOV RADIUS", UDim2.new(0,0,0,645), 10, 800, _S._Fr, function(v) _S._Fr = v end)
+_bldS("PREDICTION", UDim2.new(0,0,0,695), 0, 50, _S._Pred*100, function(v) _S._Pred = v/100 end)
 
 local function _getCol(cfg, p)
     if cfg.Mode == "Rainbow" then return Color3.fromHSV(tick() % 5 / 5, 1, 1) end
@@ -513,10 +420,21 @@ local function _gnr()
             if #activeParts == 0 then table.insert(activeParts, "Head") end
             local randPart = activeParts[math.random(1, #activeParts)]
             local r = p.Character:FindFirstChild(randPart)
-            if r and _vChk(p.Character, randPart) then
-                local sP, onS = _c0:WorldToViewportPoint(r.Position)
-                local dist = (Vector2.new(sP.X, sP.Y) - Vector2.new(_c0.ViewportSize.X/2, _c0.ViewportSize.Y/2)).Magnitude
-                if (not _S._Fv or dist <= _S._Fr) and dist < d then d = dist; n = p; pickedPart = randPart end
+            if r and (not _S._W or _vChk(p.Character, randPart)) then
+                local hrp = p.Character:FindFirstChild("HumanoidRootPart")
+                local vel = hrp and hrp.AssemblyLinearVelocity or Vector3.new(0,0,0)
+                local pPos = r.Position + (vel * _S._Pred)
+                local sP, onS = _c0:WorldToViewportPoint(pPos)
+                local dist2D = (Vector2.new(sP.X, sP.Y) - Vector2.new(_c0.ViewportSize.X/2, _c0.ViewportSize.Y/2)).Magnitude
+                
+                local score = math.huge
+                if _S._Prio == "Crosshair" then score = dist2D
+                elseif _S._Prio == "Distance" then score = (pPos - _c0.CFrame.Position).Magnitude
+                elseif _S._Prio == "Health" then score = p.Character.Humanoid.Health end
+
+                if onS and (not _S._Fv or dist2D <= _S._Fr) and score < d then
+                    d = score; n = p; pickedPart = randPart
+                end
             end
         end
     end
@@ -524,9 +442,8 @@ local function _gnr()
 end
 
 _g4.RenderStepped:Connect(function()
-    if _c0.FieldOfView ~= _S._Fr then
-        _c0.FieldOfView = _S._Fr
-    end
+    if _c0.FieldOfView ~= _S._CamFov then _c0.FieldOfView = _S._CamFov end
+
     if _drM then
         local mP = _g3:GetMouseLocation()
         _M.Position = UDim2.new(0, mP.X - _mOff.X, 0, mP.Y - _mOff.Y)
@@ -551,7 +468,15 @@ _g4.RenderStepped:Connect(function()
         _S._T = nil 
         _S._CurPart = nil
     end
-    if (_g3:IsMouseButtonPressed(_S._K1) or _S._isML) and _S._T and _S._T.Character then
+
+    local _isLocking = false
+    if _S._LockKey.Name:find("MouseButton") then
+        _isLocking = _g3:IsMouseButtonPressed(_S._LockKey)
+    else
+        _isLocking = _g3:IsKeyDown(_S._LockKey)
+    end
+
+    if (_isLocking or _S._isML) and _S._T and _S._T.Character then
         if not _S._CurPart or not _S._P[_S._CurPart] then
             local activeParts = {}
             for k, v in pairs(_S._P) do if v then table.insert(activeParts, k) end end
@@ -559,18 +484,73 @@ _g4.RenderStepped:Connect(function()
             _S._CurPart = activeParts[math.random(1, #activeParts)]
         end
         local p = _S._T.Character:FindFirstChild(_S._CurPart)
-        if p then _c0.CFrame = _c0.CFrame:Lerp(CFrame.lookAt(_c0.CFrame.Position, p.Position), _S._Sp) end
+        if p then
+            local hrp = _S._T.Character:FindFirstChild("HumanoidRootPart")
+            local vel = hrp and hrp.AssemblyLinearVelocity or Vector3.new(0,0,0)
+            local pPos = p.Position + (vel * _S._Pred)
+            
+            if _S._SafeM then
+                pPos = pPos + Vector3.new(math.random(-20,20)/100, math.random(-20,20)/100, math.random(-20,20)/100)
+            end
+
+            local tCF = CFrame.lookAt(_c0.CFrame.Position, pPos)
+            if _S._AimA then
+                _c0.CFrame = _c0.CFrame:Lerp(tCF, _S._Sp * 0.15)
+            else
+                _c0.CFrame = _c0.CFrame:Lerp(tCF, _S._Sp)
+            end
+        end
     end
-    _fO.Visible = _S._Fv and _S._V_Tgl; _fO.Radius = _S._Fr; _fO.Position = Vector2.new(_c0.ViewportSize.X/2, _c0.ViewportSize.Y/2); _fO.Color = _getCol(_S._C_Fv)
+
+    local visTarget = _S._T and _S._T.Character and _vChk(_S._T.Character, _S._CurPart)
+    _fO.Visible = _S._Fv and _S._V_Tgl
+    _fO.Radius = _S._Fr
+    _fO.Position = Vector2.new(_c0.ViewportSize.X/2, _c0.ViewportSize.Y/2)
+    _fO.Color = (_S._UseVisC and visTarget) and _getCol(_S._C_Vis, _S._T) or _getCol(_S._C_Fv)
+
+    if _S._T and _S._T.Character and _S._T.Character:FindFirstChild("HumanoidRootPart") then
+        _tInfo.Visible = _S._V_Tgl
+        local dist = math.floor((_S._T.Character.HumanoidRootPart.Position - _c0.CFrame.Position).Magnitude)
+        _tInfo.Text = "Target: " .. _S._T.Name .. " [" .. dist .. "]"
+        _tInfo.Position = Vector2.new(_c0.ViewportSize.X/2, _c0.ViewportSize.Y/2 + _S._Fr + 15)
+        _tInfo.Color = (_S._UseVisC and visTarget) and _getCol(_S._C_Vis, _S._T) or Color3.new(1,1,1)
+    else
+        _tInfo.Visible = false
+    end
+
     for _, p in pairs(_g1:GetPlayers()) do
         if p == _p0 then continue end
         local c = p.Character
         if c and c:FindFirstChild("HumanoidRootPart") then
-            local h = c:FindFirstChild("BPA_H") or Instance.new("Highlight", c); h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop; h.Name = "BPA_H"; h.Enabled = _S._L[p] and _S._E and _S._V_Tgl; h.OutlineColor = _getCol(_S._C_Es, p); h.FillTransparency = 1
-            if not _tL[p] then _tL[p] = Drawing.new("Line") end
-            local tr = _tL[p]; local sP, onS = _c0:WorldToViewportPoint(c.HumanoidRootPart.Position)
-            if onS and _S._L[p] and _S._Tr and _S._V_Tgl then tr.Visible = true; tr.To = Vector2.new(sP.X, sP.Y); tr.From = Vector2.new(_c0.ViewportSize.X/2, _c0.ViewportSize.Y); tr.Color = _getCol(_S._C_Tr, p); tr.Thickness = 1.5 else tr.Visible = false end
-        elseif _tL[p] then _tL[p].Visible = false end
+            local isVis = _vChk(c, "HumanoidRootPart")
+            local h = c:FindFirstChild("BPA_H") or Instance.new("Highlight", c)
+            h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop; h.Name = "BPA_H"
+            h.Enabled = _S._L[p] and _S._E and _S._V_Tgl
+            h.OutlineColor = (_S._UseVisC and isVis) and _getCol(_S._C_Vis, p) or _getCol(_S._C_Es, p)
+            h.FillTransparency = 1
+            
+            if not _tL[p] then 
+                _tL[p] = { L = Drawing.new("Line"), T = Drawing.new("Text") }
+                _tL[p].T.Size = 13; _tL[p].T.Center = true; _tL[p].T.Outline = true
+            end
+            local tr = _tL[p].L; local dt = _tL[p].T
+            local sP, onS = _c0:WorldToViewportPoint(c.HumanoidRootPart.Position)
+            if onS and _S._L[p] and _S._V_Tgl then
+                if _S._Tr then
+                    tr.Visible = true; tr.To = Vector2.new(sP.X, sP.Y); tr.From = Vector2.new(_c0.ViewportSize.X/2, _c0.ViewportSize.Y)
+                    tr.Color = _getCol(_S._C_Tr, p); tr.Thickness = 1.5
+                else tr.Visible = false end
+                
+                if _S._E then
+                    dt.Visible = true; dt.Position = Vector2.new(sP.X, sP.Y + 15); dt.Text = "["..math.floor((c.HumanoidRootPart.Position - _c0.CFrame.Position).Magnitude).."]"
+                    dt.Color = h.OutlineColor
+                else dt.Visible = false end
+            else
+                tr.Visible = false; dt.Visible = false
+            end
+        elseif _tL[p] then 
+            _tL[p].L.Visible = false; _tL[p].T.Visible = false 
+        end
     end
 end)
 
@@ -597,7 +577,11 @@ end
 
 _g1.PlayerAdded:Connect(_trackPlayer)
 for _, p in pairs(_g1:GetPlayers()) do _trackPlayer(p) end
-_g1.PlayerRemoving:Connect(function(p) if _tL[p] then _tL[p]:Remove() _tL[p] = nil end _S._L[p] = nil _rfsh() end)
+_g1.PlayerRemoving:Connect(function(p) 
+    if _tL[p] then _tL[p].L:Remove(); _tL[p].T:Remove(); _tL[p] = nil end 
+    _S._L[p] = nil 
+    _rfsh() 
+end)
 
 _p0:GetPropertyChangedSignal("Team"):Connect(function()
     for _, p in pairs(_g1:GetPlayers()) do _applyPlayerRules(p) end
@@ -606,7 +590,7 @@ end)
 
 _mB.MouseButton1Click:Connect(function()
     _S._op = not _S._op; _mB.Text = _S._op and "-" or "+"
-    _ts:Create(_M, TweenInfo.new(0.3, Enum.EasingStyle.Quart), {Size = _S._op and UDim2.new(0, 380, 0, 750) or UDim2.new(0, 380, 0, 50)}):Play()
+    _ts:Create(_M, TweenInfo.new(0.3, Enum.EasingStyle.Quart), {Size = _S._op and UDim2.new(0, 380, 0, 950) or UDim2.new(0, 380, 0, 50)}):Play()
 end)
 
 _rfsh()
